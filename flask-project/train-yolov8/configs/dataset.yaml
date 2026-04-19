@@ -1,0 +1,21 @@
+# 数据集配置文件
+# YOLOv8 数据集配置格式
+
+# 数据集路径（相对于此文件的路径）
+path: ../data
+train: images/train
+val: images/val
+test: images/test
+
+# 类别数量
+nc: 4
+
+# 类别名称
+names:
+  0: PILL      # 药片/胶囊
+  1: BLISTER   # 泡罩板
+  2: BOTTLE    # 药瓶
+  3: BOX       # 药盒
+
+
+

@@ -1,0 +1,41 @@
+# 训练输出
+outputs/
+runs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 数据文件（如果数据很大，建议不提交）
+# data/images/
+# data/labels/
+
+# 模型文件
+*.pt
+*.onnx
+*.pth
+
+# 日志
+*.log
+wandb/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+
+

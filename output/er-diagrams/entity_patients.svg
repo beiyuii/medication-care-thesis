@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="900.0" y="50" text-anchor="middle" dominant-baseline="middle" font-size="36" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patients 实体属性图（陈氏 ER）</text>
+<line x1="900" y1="700" x2="900.0" y2="320.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1350.3332099679083" y2="890.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="449.66679003209197" y2="890.0000000000001" stroke="#111111" stroke-width="3"/>
+<rect x="740.0" y="630.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="900" y="688.8" text-anchor="middle">patients</tspan><tspan x="900" y="719.5999999999999" text-anchor="middle">患者表</tspan></text>
+<ellipse cx="900.0" cy="320.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="320.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1350.3332099679083" cy="890.0" rx="180.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1350.3332099679083" y="890.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">elder_user_id (FK)</text>
+<ellipse cx="449.66679003209197" cy="890.0000000000001" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="449.66679003209197" y="890.0000000000001" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">name</text>
+</svg>

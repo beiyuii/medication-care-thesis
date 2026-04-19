@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频检测测试页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .file-info {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-suspected {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-abnormal {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .video-preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .video-preview.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📹 视频检测测试工具</h1>
+        <p class="subtitle">上传服药视频，测试检测接口功能</p>
+
+        <form id="detectionForm">
+            <div class="form-group">
+                <label for="patientId">患者ID *</label>
+                <input type="text" id="patientId" name="patientId" required placeholder="例如: patient-001">
+            </div>
+
+            <div class="form-group">
+                <label for="scheduleId">计划ID *</label>
+                <input type="text" id="scheduleId" name="scheduleId" required placeholder="例如: schedule-001">
+            </div>
+
+            <div class="form-group">
+                <label for="timestamp">时间戳 *</label>
+                <input type="datetime-local" id="timestamp" name="timestamp" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cameraId">摄像头ID（可选）</label>
+                <input type="text" id="cameraId" name="cameraId" placeholder="例如: camera-001">
+            </div>
+
+            <div class="form-group">
+                <label for="modelVersion">模型版本（可选）</label>
+                <input type="text" id="modelVersion" name="modelVersion" placeholder="例如: v1.0">
+            </div>
+
+            <div class="form-group">
+                <label for="samplingRate">采样率（帧/秒，默认30）</label>
+                <input type="number" id="samplingRate" name="samplingRate" min="1" max="60" value="30">
+            </div>
+
+            <div class="form-group">
+                <label for="maxFrames">最大处理帧数（默认300）</label>
+                <input type="number" id="maxFrames" name="maxFrames" min="1" max="1000" value="300">
+            </div>
+
+            <div class="form-group">
+                <label for="videoFile">视频文件 *</label>
+                <input type="file" id="videoFile" name="videoFile" accept="video/*" required>
+                <div class="file-info" id="fileInfo"></div>
+                <video id="videoPreview" class="video-preview" controls></video>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">开始检测</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在处理视频，请稍候...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="result-title">📊 检测结果</div>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 设置默认时间戳为当前时间
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('timestamp').value = now.toISOString().slice(0, 16);
+
+        // 视频文件预览
+        document.getElementById('videoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileInfo = document.getElementById('fileInfo');
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                fileInfo.textContent = `文件名: ${file.name} | 大小: ${fileSize} MB`;
+
+                const videoPreview = document.getElementById('videoPreview');
+                const url = URL.createObjectURL(file);
+                videoPreview.src = url;
+                videoPreview.classList.add('show');
+            }
+        });
+
+        // 表单提交
+        document.getElementById('detectionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+
+            // 重置UI
+            submitBtn.disabled = true;
+            loading.classList.add('show');
+            error.classList.remove('show');
+            result.classList.remove('show');
+
+            // 获取表单数据
+            const formData = new FormData();
+            formData.append('patientId', document.getElementById('patientId').value);
+            formData.append('scheduleId', document.getElementById('scheduleId').value);
+            formData.append('timestamp', new Date(document.getElementById('timestamp').value).toISOString());
+            
+            const cameraId = document.getElementById('cameraId').value;
+            if (cameraId) {
+                formData.append('cameraId', cameraId);
+            }
+
+            const modelVersion = document.getElementById('modelVersion').value;
+            if (modelVersion) {
+                formData.append('modelVersion', modelVersion);
+            }
+
+            const samplingRate = document.getElementById('samplingRate').value;
+            if (samplingRate) {
+                formData.append('samplingRate', samplingRate);
+            }
+
+            const maxFrames = document.getElementById('maxFrames').value;
+            if (maxFrames) {
+                formData.append('maxFrames', maxFrames);
+            }
+
+            const videoFile = document.getElementById('videoFile').files[0];
+            if (!videoFile) {
+                showError('请选择视频文件');
+                submitBtn.disabled = false;
+                loading.classList.remove('show');
+                return;
+            }
+            formData.append('videoFile', videoFile);
+
+            try {
+                // 调用API
+                const response = await fetch('/v1/detections/video/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || data.error || '请求失败');
+                }
+
+                // 显示结果
+                displayResult(data);
+                result.classList.add('show');
+
+            } catch (err) {
+                showError('检测失败: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+        function displayResult(data) {
+            const resultContent = document.getElementById('resultContent');
+            
+            // 状态徽章
+            const statusClass = {
+                'confirmed': 'status-confirmed',
+                'suspected': 'status-suspected',
+                'abnormal': 'status-abnormal'
+            }[data.status] || 'status-suspected';
+
+            let html = `
+                <div class="result-item">
+                    <div class="result-label">检测状态</div>
+                    <div class="result-value">
+                        <span class="status-badge ${statusClass}">${data.status}</span>
+                    </div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">置信度</div>
+                    <div class="result-value">${(data.confidence * 100).toFixed(1)}%</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">动作检测</div>
+                    <div class="result-value">${data.actionDetected ? '✅ 检测到服药动作' : '❌ 未检测到动作'}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">处理耗时</div>
+                    <div class="result-value">${data.latencyMs} ms</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">追踪ID</div>
+                    <div class="result-value" style="font-family: monospace; font-size: 12px;">${data.traceId}</div>
+                </div>
+            `;
+
+            // 视频元数据
+            if (data.videoMetadata) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">视频信息</div>
+                        <div class="result-value">
+                            时长: ${data.videoMetadata.duration.toFixed(2)}秒 | 
+                            FPS: ${data.videoMetadata.fps.toFixed(2)} | 
+                            总帧数: ${data.videoMetadata.totalFrames} | 
+                            处理帧数: ${data.videoMetadata.processedFrames}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 检测目标
+            if (data.targets && data.targets.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">检测到的药品 (${data.targets.length})</div>
+                        <div class="result-value">
+                `;
+                data.targets.forEach((target, index) => {
+                    html += `
+                        <div style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+                            <strong>${index + 1}. ${target.label}</strong><br>
+                            置信度: ${(target.score * 100).toFixed(1)}% | 
+                            检测次数: ${target.detectionCount} | 
+                            帧范围: ${target.firstDetectedFrame}-${target.lastDetectedFrame}
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">检测到的药品</div>
+                        <div class="result-value">未检测到药品</div>
+                    </div>
+                `;
+            }
+
+            // 动作时间线
+            if (data.actionTimeline && data.actionTimeline.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">动作时间线 (${data.actionTimeline.length})</div>
+                        <div class="result-value">
+                `;
+                data.actionTimeline.forEach((timeline, index) => {
+                    html += `
+                        <div style="margin-top: 8px; padding: 8px; background: #e8f5e9; border-radius: 4px;">
+                            <strong>动作 ${index + 1}</strong><br>
+                            帧范围: ${timeline.startFrame}-${timeline.endFrame} | 
+                            置信度: ${(timeline.confidence * 100).toFixed(1)}%
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+

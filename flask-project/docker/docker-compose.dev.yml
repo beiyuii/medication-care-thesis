@@ -1,0 +1,14 @@
+services:
+  algo:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: flask --app app.main --debug run --host 0.0.0.0 --port 8000
+    volumes:
+      - ../app:/opt/app/app
+      - ../.env.example:/opt/app/.env:ro
+    environment:
+      FLASK_APP: app.main
+      FLASK_DEBUG: 1
+    ports:
+      - "8000:8000"

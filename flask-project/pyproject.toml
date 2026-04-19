@@ -1,0 +1,38 @@
+[project]
+name = "algo-service"
+version = "0.1.0"
+description = "Flask algorithmic API for medication intake detection"
+authors = [{ name = "Algo Service", email = "algo@example.com" }]
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.0.3",
+    "structlog>=24.1.0",
+    "httpx[http2]>=0.27.0",
+    "tenacity>=8.2.3",
+    "opencv-python>=4.8.0",
+    "numpy>=1.24.0",
+    "onnxruntime>=1.16.0",
+    "mediapipe>=0.10.0",
+    "pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+server = [
+    "gunicorn>=21.2.0",
+]
+
+dynamic = []
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+addopts = "-q --maxfail=1"

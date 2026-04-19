@@ -1,0 +1,21 @@
+# Ultralytics医疗药丸数据集配置文件
+# 来源: https://docs.ultralytics.com/zh/datasets/detect/medical-pills/
+# 下载: https://github.com/ultralytics/assets/releases/download/v0.0.0/medical-pills.zip
+
+# 数据集路径（相对于此文件的路径）
+# 注意：如果数据集解压到了flask-project/data/，使用下面的路径
+path: ../../data
+train: images/train  # 92张训练图片
+val: images/val       # 23张验证图片
+
+# 类别数量
+nc: 1
+
+# 类别名称
+names:
+  0: pill  # 药丸
+
+# 注意：这是Ultralytics提供的示例数据集，只有一个类别（pill）
+# 如果你的项目需要多个类别（PILL/BLISTER/BOTTLE/BOX），
+# 请使用自定义数据集或在此数据集基础上扩展
+

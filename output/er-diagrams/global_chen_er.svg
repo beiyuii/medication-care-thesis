@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5600" height="3400" viewBox="0 0 5600 3400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="2800.0" y="50" text-anchor="middle" dominant-baseline="middle" font-size="36" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">全局实体关系图（陈氏 ER）</text>
+<line x1="650" y1="520" x2="300" y2="370" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="520" x2="290" y2="530" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="520" x2="340" y2="690" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="520" x2="960" y2="370" stroke="#111111" stroke-width="3"/>
+<line x1="1800" y1="520" x2="1460" y2="360" stroke="#111111" stroke-width="3"/>
+<line x1="1800" y1="520" x2="1800" y2="300" stroke="#111111" stroke-width="3"/>
+<line x1="1800" y1="520" x2="2140" y2="360" stroke="#111111" stroke-width="3"/>
+<line x1="1250" y1="1380" x2="830" y2="1380" stroke="#111111" stroke-width="3"/>
+<line x1="1250" y1="1380" x2="1250" y2="1140" stroke="#111111" stroke-width="3"/>
+<line x1="1250" y1="1380" x2="1670" y2="1380" stroke="#111111" stroke-width="3"/>
+<line x1="1250" y1="1380" x2="1250" y2="1620" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="2380" x2="330" y2="2240" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="2380" x2="970" y2="2240" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="2380" x2="330" y2="2520" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="2380" x2="970" y2="2520" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="2730" y2="390" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3150" y2="310" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3570" y2="390" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="2730" y2="560" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3570" y2="560" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="2730" y2="730" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3150" y2="810" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3570" y2="730" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="560" x2="3150" y2="930" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="2700" y2="1660" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="3150" y2="1580" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="3600" y2="1660" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="2700" y2="1860" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="3600" y2="1860" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="2700" y2="2060" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="3150" y2="2160" stroke="#111111" stroke-width="3"/>
+<line x1="3150" y1="1860" x2="3600" y2="2060" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="4520" y2="820" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="4870" y2="750" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="5220" y2="820" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="4520" y2="1010" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="5220" y2="1010" stroke="#111111" stroke-width="3"/>
+<line x1="4870" y1="980" x2="4870" y2="1220" stroke="#111111" stroke-width="3"/>
+<line x1="4850" y1="2520" x2="4500" y2="2370" stroke="#111111" stroke-width="3"/>
+<line x1="4850" y1="2520" x2="5200" y2="2370" stroke="#111111" stroke-width="3"/>
+<line x1="4850" y1="2520" x2="4500" y2="2670" stroke="#111111" stroke-width="3"/>
+<line x1="4850" y1="2520" x2="5200" y2="2670" stroke="#111111" stroke-width="3"/>
+<line x1="650" y1="520" x2="1220" y2="430" stroke="#111111" stroke-width="3"/>
+<text x="752.6" y="483.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="1220" y1="430" x2="1800" y2="520" stroke="#111111" stroke-width="3"/>
+<text x="1695.6" y="483.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="650" y1="520" x2="900" y2="1080" stroke="#111111" stroke-width="3"/>
+<text x="695.0" y="600.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="900" y1="1080" x2="1250" y2="1380" stroke="#111111" stroke-width="3"/>
+<text x="1187.0" y="1306.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="1800" y1="520" x2="1600" y2="1080" stroke="#111111" stroke-width="3"/>
+<text x="1764.0" y="600.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="1600" y1="1080" x2="1250" y2="1380" stroke="#111111" stroke-width="3"/>
+<text x="1313.0" y="1306.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="650" y1="520" x2="650" y2="1870" stroke="#111111" stroke-width="3"/>
+<text x="650.0" y="743.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="650" y1="1870" x2="650" y2="2380" stroke="#111111" stroke-width="3"/>
+<text x="650.0" y="2268.2" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="1800" y1="520" x2="2470" y2="560" stroke="#111111" stroke-width="3"/>
+<text x="1920.6" y="507.20000000000005" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="2470" y1="560" x2="3150" y2="560" stroke="#111111" stroke-width="3"/>
+<text x="3027.6" y="540.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="1800" y1="520" x2="2470" y2="1680" stroke="#111111" stroke-width="3"/>
+<text x="1920.6" y="708.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="2470" y1="1680" x2="3150" y2="1860" stroke="#111111" stroke-width="3"/>
+<text x="3027.6" y="1807.6" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="3150" y1="560" x2="3150" y2="1180" stroke="#111111" stroke-width="3"/>
+<text x="3150.0" y="651.6" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="3150" y1="1180" x2="3150" y2="1860" stroke="#111111" stroke-width="3"/>
+<text x="3150.0" y="1717.6" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="1800" y1="520" x2="4030" y2="980" stroke="#111111" stroke-width="3"/>
+<text x="2201.4" y="582.8" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="4030" y1="980" x2="4870" y2="980" stroke="#111111" stroke-width="3"/>
+<text x="4718.8" y="960.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<line x1="3150" y1="1860" x2="4010" y2="2300" stroke="#111111" stroke-width="3"/>
+<text x="3304.8" y="1919.2" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">1</text>
+<line x1="4010" y1="2300" x2="4850" y2="2520" stroke="#111111" stroke-width="3"/>
+<text x="4698.8" y="2460.4" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">N</text>
+<rect x="490.0" y="450.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="650" y="508.8" text-anchor="middle">users</tspan><tspan x="650" y="539.6" text-anchor="middle">用户账号表</tspan></text>
+<ellipse cx="300" cy="370" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="300" y="370" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="290" cy="530" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="290" y="530" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">username</text>
+<ellipse cx="340" cy="690" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="340" y="690" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">pwd_hash</text>
+<ellipse cx="960" cy="370" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="960" y="370" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">role</text>
+<rect x="1640.0" y="450.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="1800" y="508.8" text-anchor="middle">patients</tspan><tspan x="1800" y="539.6" text-anchor="middle">患者表</tspan></text>
+<ellipse cx="1460" cy="360" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1460" y="360" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1800" cy="300" rx="186.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1800" y="300" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">elder_user_id (FK)</text>
+<ellipse cx="2140" cy="360" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2140" y="360" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">name</text>
+<rect x="1090.0" y="1310.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="1250" y="1368.8" text-anchor="middle">user_patient_relation</tspan><tspan x="1250" y="1399.6" text-anchor="middle">用户与患者关联表</tspan></text>
+<ellipse cx="830" cy="1380" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="830" y="1380" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1250" cy="1140" rx="144.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1250" y="1140" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">user_id (FK)</text>
+<ellipse cx="1670" cy="1380" rx="165.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1670" y="1380" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="1250" cy="1620" rx="151.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1250" y="1620" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">relation_type</text>
+<rect x="490.0" y="2310.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="650" y="2368.8" text-anchor="middle">settings</tspan><tspan x="650" y="2399.6000000000004" text-anchor="middle">用户设置表</tspan></text>
+<ellipse cx="330" cy="2240" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="330" y="2240" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="970" cy="2240" rx="144.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="970" y="2240" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">user_id (FK)</text>
+<ellipse cx="330" cy="2520" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="330" y="2520" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">privacy</text>
+<ellipse cx="970" cy="2520" rx="151.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="970" y="2520" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">notify_config</text>
+<rect x="2990.0" y="490.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="3150" y="548.8" text-anchor="middle">schedules</tspan><tspan x="3150" y="579.5999999999999" text-anchor="middle">用药计划表</tspan></text>
+<ellipse cx="2730" cy="390" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2730" y="390" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="3150" cy="310" rx="165.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3150" y="310" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="3570" cy="390" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3570" y="390" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">type</text>
+<ellipse cx="2730" cy="560" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2730" y="560" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">dose</text>
+<ellipse cx="3570" cy="560" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3570" y="560" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">freq</text>
+<ellipse cx="2730" cy="730" rx="123.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2730" y="730" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">win_start</text>
+<ellipse cx="3150" cy="810" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3150" y="810" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">win_end</text>
+<ellipse cx="3570" cy="730" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3570" y="730" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">period</text>
+<ellipse cx="3150" cy="930" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3150" y="930" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">status</text>
+<rect x="2990.0" y="1790.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="3150" y="1848.8" text-anchor="middle">intake_events</tspan><tspan x="3150" y="1879.6" text-anchor="middle">服药事件表</tspan></text>
+<ellipse cx="2700" cy="1660" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2700" y="1660" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="3150" cy="1580" rx="165.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3150" y="1580" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="3600" cy="1660" rx="172.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3600" y="1660" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">schedule_id (FK)</text>
+<ellipse cx="2700" cy="1860" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2700" y="1860" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">ts</text>
+<ellipse cx="3600" cy="1860" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3600" y="1860" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">status</text>
+<ellipse cx="2700" cy="2060" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="2700" y="2060" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">action</text>
+<ellipse cx="3150" cy="2160" rx="144.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3150" y="2160" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">targets_json</text>
+<ellipse cx="3600" cy="2060" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="3600" y="2060" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">img_url</text>
+<rect x="4710.0" y="910.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="4870" y="968.8" text-anchor="middle">alerts</tspan><tspan x="4870" y="999.5999999999999" text-anchor="middle">告警表</tspan></text>
+<ellipse cx="4520" cy="820" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4520" y="820" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="4870" cy="750" rx="165.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4870" y="750" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="5220" cy="820" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="5220" y="820" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">type</text>
+<ellipse cx="4520" cy="1010" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4520" y="1010" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">title</text>
+<ellipse cx="5220" cy="1010" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="5220" y="1010" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">ts</text>
+<ellipse cx="4870" cy="1220" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4870" y="1220" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">status</text>
+<rect x="4690.0" y="2450.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="4850" y="2508.8" text-anchor="middle">log_images</tspan><tspan x="4850" y="2539.6000000000004" text-anchor="middle">图片日志表</tspan></text>
+<ellipse cx="4500" cy="2370" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4500" y="2370" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="5200" cy="2370" rx="151.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="5200" y="2370" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">event_id (FK)</text>
+<ellipse cx="4500" cy="2670" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="4500" y="2670" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">url</text>
+<ellipse cx="5200" cy="2670" rx="120.0" ry="45.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="5200" y="2670" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">ts</text>
+<polygon points="1220,370.0 1330.0,430 1220,490.0 1110.0,430" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="1220" y="430" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">拥有</text>
+<polygon points="900,1015.0 1030.0,1080 900,1145.0 770.0,1080" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="900" y="1080" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">关联记录</text>
+<polygon points="1600,1015.0 1730.0,1080 1600,1145.0 1470.0,1080" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="1600" y="1080" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">关联记录</text>
+<polygon points="650,1810.0 770.0,1870 650,1930.0 530.0,1870" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="650" y="1870" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">配置</text>
+<polygon points="2470,500.0 2590.0,560 2470,620.0 2350.0,560" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="2470" y="560" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">制定</text>
+<polygon points="2470,1615.0 2600.0,1680 2470,1745.0 2340.0,1680" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="2470" y="1680" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">产生</text>
+<polygon points="3150,1115.0 3290.0,1180 3150,1245.0 3010.0,1180" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="3150" y="1180" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">对应计划</text>
+<polygon points="4030,920.0 4150.0,980 4030,1040.0 3910.0,980" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="4030" y="980" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">触发</text>
+<polygon points="4010,2240.0 4130.0,2300 4010,2360.0 3890.0,2300" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text x="4010" y="2300" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">保存</text>
+</svg>

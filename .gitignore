@@ -1,0 +1,31 @@
+# 操作系统与 IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# 前端（vue-project）
+vue-project/node_modules/
+vue-project/dist/
+
+# 后端 Java（springProject）
+springProject/target/
+springProject/logs/
+springProject/uploads/
+
+# 算法服务（flask-project）
+flask-project/.venv/
+flask-project/**/__pycache__/
+flask-project/.pytest_cache/
+flask-project/.env
+flask-project/**/*.pyc
+flask-project/*.egg-info/
+
+# 密钥与本地配置（勿提交）
+**/.env
+**/.env.*
+**/application-dev.properties
+
+# 模型体积较大时可改为 Git LFS 或单独分发
+flask-project/models/*.onnx

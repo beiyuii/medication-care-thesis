@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="900.0" y="50" text-anchor="middle" dominant-baseline="middle" font-size="36" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">users 实体属性图（陈氏 ER）</text>
+<line x1="900" y1="700" x2="900.0" y2="320.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1420.0" y2="700.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="900.0" y2="1080.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="380.0" y2="700.0" stroke="#111111" stroke-width="3"/>
+<rect x="740.0" y="630.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="900" y="688.8" text-anchor="middle">users</tspan><tspan x="900" y="719.5999999999999" text-anchor="middle">用户账号表</tspan></text>
+<ellipse cx="900.0" cy="320.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="320.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1420.0" cy="700.0" rx="116.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1420.0" y="700.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">username</text>
+<ellipse cx="900.0" cy="1080.0" rx="116.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="1080.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">pwd_hash</text>
+<ellipse cx="380.0" cy="700.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="380.0" y="700.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">role</text>
+</svg>

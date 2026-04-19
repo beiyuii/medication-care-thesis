@@ -1,0 +1,588 @@
+
+openapi: 3.0.3
+info:
+  title: Medication Backend API
+  version: 2.0.0
+  description: 老年人用药提醒与管理系统后端API文档（已更新至v2.0，所有接口已实现完成）
+servers:
+  - url: http://localhost:8080/api
+    description: 本地默认服务地址（Base URL: /api）
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: 0 表示成功，其它表示错误码
+        message:
+          type: string
+          description: 错误描述或提示信息
+        data:
+          nullable: true
+          description: 具体数据载体（不同接口返回不同结构）
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          description: 用户名
+        password:
+          type: string
+          description: 密码
+    AuthProfileVO:
+      type: object
+      properties:
+        username:
+          type: string
+          description: 用户名
+        role:
+          type: string
+          description: 角色
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 主键 ID
+        patientId:
+          type: integer
+          format: int64
+          description: 患者 ID
+        type:
+          type: string
+          description: 药品类型（PILL/BLISTER/BOTTLE/BOX）
+        dose:
+          type: string
+          description: 剂量描述
+        freq:
+          type: string
+          description: 频次（如每天、每周）
+        winStart:
+          type: string
+          description: 时间窗开始（HH:mm）
+        winEnd:
+          type: string
+          description: 时间窗结束（HH:mm）
+        period:
+          type: string
+          description: 周期描述（如 1-30 天）
+        status:
+          type: string
+          description: 状态（enabled/disabled）
+    IntakeEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 主键 ID
+        patientId:
+          type: integer
+          format: int64
+          description: 患者 ID
+        scheduleId:
+          type: integer
+          format: int64
+          description: 计划 ID
+        ts:
+          type: string
+          description: 事件时间戳（ISO 字符串或 long）
+        status:
+          type: string
+          description: 事件状态（suspected/confirmed/abnormal）
+        action:
+          type: string
+          description: 动作描述（如 hand_to_mouth）
+        targetsJson:
+          type: string
+          description: 目标检测 JSON 字符串
+        imgUrl:
+          type: string
+          description: 图片 URL
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 主键 ID
+        patientId:
+          type: integer
+          format: int64
+          description: 患者 ID
+        type:
+          type: string
+          description: 告警类型
+        ts:
+          type: string
+          description: 时间戳
+        status:
+          type: string
+          description: 状态
+    LogImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 主键 ID
+        eventId:
+          type: integer
+          format: int64
+          description: 事件 ID
+        url:
+          type: string
+          description: 图片 URL
+        ts:
+          type: string
+          description: 时间戳
+
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      operationId: healthCheck
+      summary: 健康检查
+      description: 返回 "OK"
+      security: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: string
+                    example: OK
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: 登录
+      description: 使用用户名与密码登录，返回 JWT token 与角色
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      role:
+                        type: string
+        '401':
+          description: 登录失败
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: 用户名或密码错误
+                  data:
+                    nullable: true
+  /api/auth/profile:
+    get:
+      tags: [Auth]
+      operationId: getProfile
+      summary: 获取个人信息
+      description: 通过 Authorization Bearer token 获取当前用户信息
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/AuthProfileVO'
+  /api/schedules:
+    get:
+      tags: [Schedules]
+      operationId: getSchedules
+      summary: 查询计划列表
+      parameters:
+        - in: query
+          name: patientId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 患者 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Schedule'
+    post:
+      tags: [Schedules]
+      operationId: createSchedule
+      summary: 新增计划
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Schedule'
+  /api/schedules/{id}:
+    patch:
+      tags: [Schedules]
+      operationId: updateSchedule
+      summary: 更新计划
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: integer
+                    format: int32
+                    description: 更新影响行数
+  /api/schedules/{id}/toggle:
+    post:
+      tags: [Schedules]
+      operationId: toggleSchedule
+      summary: 启停计划切换
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: integer
+                    format: int32
+                    description: 更新影响行数
+        '404':
+          description: 计划不存在
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: 计划不存在
+                  data:
+                    nullable: true
+  /api/intake-events:
+    get:
+      tags: [Intake Events]
+      operationId: listIntakeEvents
+      summary: 查询服药事件
+      parameters:
+        - in: query
+          name: patientId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 患者 ID
+        - in: query
+          name: range
+          required: false
+          schema:
+            type: string
+          description: 时间范围
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IntakeEvent'
+    post:
+      tags: [Intake Events]
+      operationId: createIntakeEvent
+      summary: 新增服药事件
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntakeEvent'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/IntakeEvent'
+  /api/alerts:
+    get:
+      tags: [Alerts]
+      operationId: listAlerts
+      summary: 查询告警列表
+      parameters:
+        - in: query
+          name: patientId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 患者 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Alert'
+  /api/reports/summary:
+    get:
+      tags: [Reports]
+      operationId: reportSummary
+      summary: 查询统计摘要
+      parameters:
+        - in: query
+          name: patientId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 患者 ID
+        - in: query
+          name: range
+          required: false
+          schema:
+            type: string
+          description: 时间范围
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      patientId:
+                        type: integer
+                        format: int64
+                      range:
+                        type: string
+                        example: all
+  /api/logs/images:
+    get:
+      tags: [Log Images]
+      operationId: listLogImages
+      summary: 查询事件图片列表
+      parameters:
+        - in: query
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 事件 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LogImage'
+    post:
+      tags: [Log Images]
+      operationId: uploadLogImage
+      summary: 上传日志图片
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 图片文件
+                eventId:
+                  type: integer
+                  format: int64
+                  description: 事件 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: string
+                    description: 图片 URL

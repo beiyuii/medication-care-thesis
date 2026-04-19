@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="900.0" y="50" text-anchor="middle" dominant-baseline="middle" font-size="36" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">intake_events 实体属性图（陈氏 ER）</text>
+<line x1="900" y1="700" x2="900.0" y2="250.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1338.4062043356594" y2="381.80194846605366" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1520.0" y2="700.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1338.4062043356594" y2="1018.1980515339463" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="900.0" y2="1150.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="461.5937956643406" y2="1018.1980515339465" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="280.0" y2="700.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="461.59379566434046" y2="381.80194846605366" stroke="#111111" stroke-width="3"/>
+<rect x="740.0" y="630.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="900" y="688.8" text-anchor="middle">intake_events</tspan><tspan x="900" y="719.5999999999999" text-anchor="middle">服药事件表</tspan></text>
+<ellipse cx="900.0" cy="250.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="250.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1338.4062043356594" cy="381.80194846605366" rx="165.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1338.4062043356594" y="381.80194846605366" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="1520.0" cy="700.0" rx="172.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1520.0" y="700.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">schedule_id (FK)</text>
+<ellipse cx="1338.4062043356594" cy="1018.1980515339463" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1338.4062043356594" y="1018.1980515339463" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">ts</text>
+<ellipse cx="900.0" cy="1150.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="1150.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">status</text>
+<ellipse cx="461.5937956643406" cy="1018.1980515339465" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="461.5937956643406" y="1018.1980515339465" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">action</text>
+<ellipse cx="280.0" cy="700.0" rx="144.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="280.0" y="700.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">targets_json</text>
+<ellipse cx="461.59379566434046" cy="381.80194846605366" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="461.59379566434046" y="381.80194846605366" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">img_url</text>
+</svg>

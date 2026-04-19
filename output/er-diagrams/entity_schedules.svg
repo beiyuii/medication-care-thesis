@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="900.0" y="50" text-anchor="middle" dominant-baseline="middle" font-size="36" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">schedules 实体属性图（陈氏 ER）</text>
+<line x1="900" y1="700" x2="900.0" y2="250.0" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1298.5283180056545" y2="355.2800005964599" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1510.580806867569" y2="621.8583200498813" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1436.935750346352" y2="924.9999999999999" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="1112.0524888619148" y2="1122.8616793536587" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="687.9475111380854" y2="1122.861679353659" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="363.0642496536482" y2="925.0000000000001" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="289.4191931324309" y2="621.8583200498815" stroke="#111111" stroke-width="3"/>
+<line x1="900" y1="700" x2="501.47168199434554" y2="355.28000059645996" stroke="#111111" stroke-width="3"/>
+<rect x="740.0" y="630.0" width="320" height="140" fill="#ffffff" stroke="#111111" stroke-width="4"/>
+<text font-size="28" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"><tspan x="900" y="688.8" text-anchor="middle">schedules</tspan><tspan x="900" y="719.5999999999999" text-anchor="middle">用药计划表</tspan></text>
+<ellipse cx="900.0" cy="250.0" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="900.0" y="250.0" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">id (PK)</text>
+<ellipse cx="1298.5283180056545" cy="355.2800005964599" rx="165.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1298.5283180056545" y="355.2800005964599" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">patient_id (FK)</text>
+<ellipse cx="1510.580806867569" cy="621.8583200498813" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1510.580806867569" y="621.8583200498813" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">type</text>
+<ellipse cx="1436.935750346352" cy="924.9999999999999" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1436.935750346352" y="924.9999999999999" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">dose</text>
+<ellipse cx="1112.0524888619148" cy="1122.8616793536587" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="1112.0524888619148" y="1122.8616793536587" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">freq</text>
+<ellipse cx="687.9475111380854" cy="1122.861679353659" rx="123.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="687.9475111380854" y="1122.861679353659" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">win_start</text>
+<ellipse cx="363.0642496536482" cy="925.0000000000001" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="363.0642496536482" y="925.0000000000001" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">win_end</text>
+<ellipse cx="289.4191931324309" cy="621.8583200498815" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="289.4191931324309" y="621.8583200498815" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">period</text>
+<ellipse cx="501.47168199434554" cy="355.28000059645996" rx="110.0" ry="44.0" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+<text x="501.47168199434554" y="355.28000059645996" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#111111" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif">status</text>
+</svg>

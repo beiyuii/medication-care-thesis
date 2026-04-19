@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: Elderly Medication Intake Detector
+  version: 0.1.0
+  description: >-
+    Flask-based algorithm service that inspects incoming frames to determine
+    whether an elder is performing a medication intake action. Built for
+    integration with the Web client described in the SRS.
+servers:
+  - url: http://localhost:8000
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is running
+  /ready:
+    get:
+      summary: Readiness probe
+      responses:
+        '200':
+          description: Model is loaded and ready
+        '503':
+          description: Model not loaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/detections/predict:
+    post:
+      summary: Run medication-intake detection on a frame
+      operationId: detectIntake
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectionRequest'
+      responses:
+        '200':
+          description: Detection succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResponse'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Model unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    DetectionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - patientId
+        - scheduleId
+        - timestamp
+      properties:
+        patientId:
+          type: string
+          description: Elder patient identifier from business backend
+        scheduleId:
+          type: string
+          description: Schedule identifier that triggered this capture
+        timestamp:
+          type: string
+          format: date-time
+        frameB64:
+          type: string
+          description: Base64 encoded JPEG/PNG frame
+        frameUrl:
+          type: string
+          format: uri
+          description: Remote URI to fetch frame if base64 not provided
+        cameraId:
+          type: string
+          description: Logical camera identifier from frontend
+        modelVersion:
+          type: string
+          description: Optional client-side model tag for observability
+    DetectionResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - actionDetected
+        - targets
+        - latencyMs
+        - traceId
+      properties:
+        status:
+          type: string
+          enum: [suspected, confirmed, abnormal]
+        confidence:
+          type: number
+          format: float
+        actionDetected:
+          type: boolean
+        targets:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              label:
+                type: string
+                enum: [PILL, BLISTER, BOTTLE, BOX]
+              score:
+                type: number
+                format: float
+              bbox:
+                type: array
+                minItems: 4
+                maxItems: 4
+                items:
+                  type: number
+        latencyMs:
+          type: integer
+        traceId:
+          type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - detail
+        - traceId
+      properties:
+        error:
+          type: string
+        detail:
+          nullable: true
+        traceId:
+          type: string
