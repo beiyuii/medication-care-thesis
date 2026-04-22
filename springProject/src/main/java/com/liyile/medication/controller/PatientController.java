@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.liyile.medication.common.ApiResponse;
 import com.liyile.medication.common.CommonConstants;
 import com.liyile.medication.common.ErrorCode;
+import com.liyile.medication.dto.BindPatientRequest;
 import com.liyile.medication.entity.Alert;
 import com.liyile.medication.entity.Patient;
 import com.liyile.medication.entity.Schedule;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -188,5 +191,40 @@ public class PatientController {
         .collect(Collectors.toList()));
     
     return ApiResponse.success(vo);
+  }
+
+  /**
+   * 绑定老人账号到当前 caregiver / child。
+   *
+   * @param authorization 当前登录 token
+   * @param request 绑定请求
+   * @return 绑定后的患者摘要
+   */
+  @Operation(
+      summary = "绑定老人账号",
+      description = "护工/子女输入老人用户名后，与该老人对应的患者档案建立关联关系")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "绑定成功")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "角色不支持绑定或老人用户名不存在")
+  @PostMapping("/bind")
+  public ApiResponse<PatientSummaryVO> bind(
+      @RequestHeader("Authorization") String authorization,
+      @RequestBody BindPatientRequest request) {
+    String token = authorization.startsWith(CommonConstants.BEARER_PREFIX)
+        ? authorization.substring(CommonConstants.BEARER_PREFIX.length())
+        : authorization;
+    String username = jwtTokenProvider.getUsername(token);
+    String role = jwtTokenProvider.getRole(token);
+
+    com.liyile.medication.entity.User user = userService.findByUsername(username);
+    if (user == null) {
+      return ApiResponse.failure(ErrorCode.UNAUTHORIZED, "用户不存在");
+    }
+
+    try {
+      return ApiResponse.success(
+          patientService.bindPatientByElderUsername(user, role, request.getElderUsername()));
+    } catch (IllegalArgumentException exception) {
+      return ApiResponse.failure(ErrorCode.UNPROCESSABLE, exception.getMessage());
+    }
   }
 }

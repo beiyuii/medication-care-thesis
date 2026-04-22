@@ -24,6 +24,20 @@ class FrameDetectionResult:
     hand_mouth_distance: float | None  # 手-口距离（像素）
 
 
+@dataclass
+class DetectionAssessment:
+    """视频级检测评估结果。"""
+
+    status: str
+    target_confidence: float
+    action_confidence: float
+    final_confidence: float
+    action_detected: bool
+    reason_code: str
+    reason_text: str
+    risk_tag: str
+
+
 class ResultAggregator:
     """结果聚合器：将帧级检测结果聚合为视频级结果。"""
 
@@ -184,32 +198,137 @@ class ResultAggregator:
         self,
         targets: list[VideoDetectionTarget],
         action_timeline: list[ActionTimeline],
-    ) -> tuple[str, float, bool]:
+        total_frames: int,
+    ) -> DetectionAssessment:
         """
-        计算整体检测状态、置信度和是否检测到动作。
+        计算整体检测状态与解释性证据分。
 
         Args:
             targets: 聚合后的检测目标列表
             action_timeline: 动作时间线列表
+            total_frames: 已处理帧数
 
         Returns:
-            tuple[str, float, bool]: (status, confidence, action_detected)
+            DetectionAssessment: 聚合后的状态与解释性结果
         """
         action_detected = len(action_timeline) > 0
+        safe_total_frames = max(total_frames, 1)
 
+        if not targets and not action_detected:
+            return DetectionAssessment(
+                status="abnormal",
+                target_confidence=0.0,
+                action_confidence=0.0,
+                final_confidence=0.0,
+                action_detected=False,
+                reason_code="no_medication_detected",
+                reason_text="未检测到稳定药品目标，也未捕捉到有效服药动作。",
+                risk_tag="no_target",
+            )
+
+        target_confidence = self._calculate_target_confidence(targets)
+        action_confidence = self._calculate_action_confidence(action_timeline, safe_total_frames)
+        final_confidence = round(
+            min(0.99, target_confidence * 0.55 + action_confidence * 0.45),
+            3,
+        )
+
+        if targets and action_detected and target_confidence >= 0.72 and action_confidence >= 0.68:
+            return DetectionAssessment(
+                status="confirmed",
+                target_confidence=target_confidence,
+                action_confidence=action_confidence,
+                final_confidence=final_confidence,
+                action_detected=True,
+                reason_code="clear_intake",
+                reason_text="药品目标和连续服药动作都较清晰，系统判定为已完成服药。",
+                risk_tag="clear_intake",
+            )
+
+        if targets and not action_detected:
+            reason_code = "possible_fake_intake" if target_confidence >= 0.65 else "target_only"
+            reason_text = (
+                "检测到药品目标，但缺少连续吞咽动作证据，存在装作服药的风险。"
+                if reason_code == "possible_fake_intake"
+                else "检测到药品目标，但动作证据不足，请由护工进一步确认。"
+            )
+            final_confidence = round(
+                min(0.95, target_confidence * 0.7 + action_confidence * 0.3),
+                3,
+            )
+            return DetectionAssessment(
+                status="suspected",
+                target_confidence=target_confidence,
+                action_confidence=action_confidence,
+                final_confidence=final_confidence,
+                action_detected=False,
+                reason_code=reason_code,
+                reason_text=reason_text,
+                risk_tag=(
+                    "possible_fake_intake"
+                    if reason_code == "possible_fake_intake"
+                    else "insufficient_evidence"
+                ),
+            )
+
+        if not targets and action_detected:
+            return DetectionAssessment(
+                status="suspected",
+                target_confidence=target_confidence,
+                action_confidence=action_confidence,
+                final_confidence=round(min(0.9, action_confidence * 0.75), 3),
+                action_detected=True,
+                reason_code="action_only",
+                reason_text="捕捉到手口接近动作，但缺少稳定药品目标，证据不足。",
+                risk_tag="insufficient_evidence",
+            )
+
+        reason_code = (
+            "possible_fake_intake"
+            if target_confidence >= 0.68 and action_confidence < 0.45
+            else "insufficient_evidence"
+        )
+        reason_text = (
+            "检测到药品，但动作段短且反复中断，存在假吃或未真正服下的风险。"
+            if reason_code == "possible_fake_intake"
+            else "药品或动作证据部分成立，但不足以确认已完成服药。"
+        )
+        return DetectionAssessment(
+            status="suspected",
+            target_confidence=target_confidence,
+            action_confidence=action_confidence,
+            final_confidence=final_confidence,
+            action_detected=action_detected,
+            reason_code=reason_code,
+            reason_text=reason_text,
+            risk_tag=(
+                "possible_fake_intake"
+                if reason_code == "possible_fake_intake"
+                else "insufficient_evidence"
+            ),
+        )
+
+    def _calculate_target_confidence(self, targets: list[VideoDetectionTarget]) -> float:
         if not targets:
-            return ("abnormal", 0.0, action_detected)
+            return 0.0
+        max_score = max(target.score for target in targets)
+        persistence = max(
+            min(1.0, target.detection_count / max(self.action_frames_threshold, 1))
+            for target in targets
+        )
+        return round(min(0.99, max_score * 0.72 + persistence * 0.28), 3)
 
-        # 计算平均置信度
-        avg_confidence = sum(t.score for t in targets) / len(targets)
-
-        # 根据置信度和动作检测确定状态
-        if action_detected and avg_confidence >= 0.85:
-            status = "confirmed"
-        elif action_detected or avg_confidence >= 0.5:
-            status = "suspected"
-        else:
-            status = "abnormal"
-
-        return (status, round(avg_confidence, 3), action_detected)
-
+    def _calculate_action_confidence(
+        self, action_timeline: list[ActionTimeline], total_frames: int
+    ) -> float:
+        if not action_timeline:
+            return 0.0
+        action_frames = sum(segment.end_frame - segment.start_frame + 1 for segment in action_timeline)
+        longest_segment = max(segment.end_frame - segment.start_frame + 1 for segment in action_timeline)
+        continuity = min(1.0, longest_segment / max(self.action_frames_threshold, 1))
+        coverage = min(1.0, action_frames / total_frames)
+        segment_confidence = sum(segment.confidence for segment in action_timeline) / len(action_timeline)
+        return round(
+            min(0.99, continuity * 0.45 + coverage * 0.35 + segment_confidence * 0.20),
+            3,
+        )

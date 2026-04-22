@@ -71,3 +71,12 @@ export async function getPatientDetail(id: number): Promise<PatientDetail> {
   
   return http.get(`/patients/${patientId}`)
 }
+
+/**
+ * bindPatientByElderUsername 通过老人用户名绑定当前护工/子女账号。
+ * @param elderUsername 老人用户名
+ * @returns 返回绑定后的患者摘要
+ */
+export async function bindPatientByElderUsername(elderUsername: string): Promise<PatientSummary> {
+  return http.post('/patients/bind', { elderUsername })
+}

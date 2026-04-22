@@ -22,6 +22,14 @@ public class ReminderInstance {
   private Timestamp windowStartAt;
   private Timestamp windowEndAt;
   private String status;
+  private String detectionStatus;
+  private Long parentInstanceId;
+  private Integer retryCount;
+  private Timestamp reviewDeadline;
+  private Integer lateMinutes;
+  private String reviewedBy;
+  private Timestamp reviewedAt;
+  private String reviewReason;
   private Timestamp confirmedAt;
   private Long lastEventId;
   private Long lastDetectionJobId;
@@ -82,6 +90,70 @@ public class ReminderInstance {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public String getDetectionStatus() {
+    return detectionStatus;
+  }
+
+  public void setDetectionStatus(String detectionStatus) {
+    this.detectionStatus = detectionStatus;
+  }
+
+  public Long getParentInstanceId() {
+    return parentInstanceId;
+  }
+
+  public void setParentInstanceId(Long parentInstanceId) {
+    this.parentInstanceId = parentInstanceId;
+  }
+
+  public Integer getRetryCount() {
+    return retryCount;
+  }
+
+  public void setRetryCount(Integer retryCount) {
+    this.retryCount = retryCount;
+  }
+
+  public Timestamp getReviewDeadline() {
+    return reviewDeadline;
+  }
+
+  public void setReviewDeadline(Timestamp reviewDeadline) {
+    this.reviewDeadline = reviewDeadline;
+  }
+
+  public Integer getLateMinutes() {
+    return lateMinutes;
+  }
+
+  public void setLateMinutes(Integer lateMinutes) {
+    this.lateMinutes = lateMinutes;
+  }
+
+  public String getReviewedBy() {
+    return reviewedBy;
+  }
+
+  public void setReviewedBy(String reviewedBy) {
+    this.reviewedBy = reviewedBy;
+  }
+
+  public Timestamp getReviewedAt() {
+    return reviewedAt;
+  }
+
+  public void setReviewedAt(Timestamp reviewedAt) {
+    this.reviewedAt = reviewedAt;
+  }
+
+  public String getReviewReason() {
+    return reviewReason;
+  }
+
+  public void setReviewReason(String reviewReason) {
+    this.reviewReason = reviewReason;
   }
 
   public Timestamp getConfirmedAt() {

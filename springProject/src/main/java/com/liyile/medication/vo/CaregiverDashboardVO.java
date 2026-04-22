@@ -8,6 +8,7 @@ public class CaregiverDashboardVO {
   private List<PatientSummaryVO> patients;
   private PatientSummaryVO activePatient;
   private List<IntakeEvent> recentEvents;
+  private List<ReminderInstanceVO> pendingReviewInstances;
   private List<Alert> activeAlerts;
   private Integer completionRate;
 
@@ -33,6 +34,14 @@ public class CaregiverDashboardVO {
 
   public void setRecentEvents(List<IntakeEvent> recentEvents) {
     this.recentEvents = recentEvents;
+  }
+
+  public List<ReminderInstanceVO> getPendingReviewInstances() {
+    return pendingReviewInstances;
+  }
+
+  public void setPendingReviewInstances(List<ReminderInstanceVO> pendingReviewInstances) {
+    this.pendingReviewInstances = pendingReviewInstances;
   }
 
   public List<Alert> getActiveAlerts() {

@@ -24,7 +24,7 @@ class ReportServiceImplTest {
     ReminderInstance confirmed = new ReminderInstance();
     confirmed.setPatientId(7L);
     confirmed.setScheduledDate(Date.valueOf(java.time.LocalDate.now()));
-    confirmed.setStatus("confirmed");
+    confirmed.setStatus("caregiver_confirmed");
 
     ReminderInstance missed = new ReminderInstance();
     missed.setPatientId(7L);

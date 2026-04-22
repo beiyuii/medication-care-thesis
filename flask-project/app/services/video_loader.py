@@ -205,3 +205,28 @@ class VideoLoader:
             if os.path.exists(tmp_path):
                 os.unlink(tmp_path)
 
+    def select_key_frames(
+        self,
+        frames: list[np.ndarray],
+        desired_count: int,
+        suspicious_frame_index: int | None = None,
+    ) -> list[np.ndarray]:
+        """从已提取帧中选取关键帧，优先覆盖时序首尾并包含可疑帧。"""
+        if not frames:
+            return []
+        desired = max(1, min(desired_count, len(frames)))
+        candidate_indexes = {
+            0,
+            len(frames) - 1,
+            len(frames) // 4,
+            len(frames) // 2,
+            (len(frames) * 3) // 4,
+        }
+        if suspicious_frame_index is not None:
+            candidate_indexes.add(max(0, min(suspicious_frame_index, len(frames) - 1)))
+        ordered_indexes = sorted(candidate_indexes)
+        if len(ordered_indexes) < desired:
+            step = max(1, len(frames) // desired)
+            ordered_indexes = sorted(set(ordered_indexes) | set(range(0, len(frames), step)))
+        selected_indexes = ordered_indexes[:desired]
+        return [frames[index] for index in selected_indexes]

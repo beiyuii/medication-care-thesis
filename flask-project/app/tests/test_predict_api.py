@@ -34,6 +34,12 @@ def test_predict_success(client):
     assert res.status_code == 200
     body = res.get_json()
     assert body["status"] in {"suspected", "confirmed", "abnormal"}
+    assert "targetConfidence" in body
+    assert "actionConfidence" in body
+    assert "finalConfidence" in body
+    assert "reasonCode" in body
+    assert "reasonText" in body
+    assert "riskTag" in body
     assert "traceId" in body
 
 

@@ -59,10 +59,35 @@ class DetectionResponse(StrictModel):
 
     status: Literal["suspected", "confirmed", "abnormal"]
     confidence: float = Field(ge=0.0, le=1.0)
+    target_confidence: float = Field(alias="targetConfidence", ge=0.0, le=1.0)
+    action_confidence: float = Field(alias="actionConfidence", ge=0.0, le=1.0)
+    final_confidence: float = Field(alias="finalConfidence", ge=0.0, le=1.0)
+    reason_code: Literal[
+        "clear_intake",
+        "target_only",
+        "action_only",
+        "possible_fake_intake",
+        "insufficient_evidence",
+        "no_medication_detected",
+    ] = Field(alias="reasonCode")
+    reason_text: str = Field(alias="reasonText", min_length=1, max_length=120)
+    risk_tag: Literal[
+        "possible_fake_intake",
+        "insufficient_evidence",
+        "clear_intake",
+        "no_target",
+    ] = Field(alias="riskTag")
     action_detected: bool = Field(alias="actionDetected")
     targets: list[DetectionTarget] = Field(default_factory=list)
     latency_ms: int = Field(alias="latencyMs", ge=0)
     trace_id: str = Field(alias="traceId")
+    llm_provider: Optional[str] = Field(default=None, alias="llmProvider")
+    llm_model: Optional[str] = Field(default=None, alias="llmModel")
+    llm_frame_count: Optional[int] = Field(default=None, alias="llmFrameCount", ge=0)
+    llm_decision_source: Optional[Literal["deepseek_vl", "cloud_vlm", "fallback_rules"]] = Field(
+        default=None, alias="llmDecisionSource"
+    )
+    frame_summary: Optional[str] = Field(default=None, alias="frameSummary")
 
 
 class VideoDetectionRequest(StrictModel):
@@ -125,12 +150,37 @@ class VideoDetectionResponse(StrictModel):
 
     status: Literal["suspected", "confirmed", "abnormal"]
     confidence: float = Field(ge=0.0, le=1.0)
+    target_confidence: float = Field(alias="targetConfidence", ge=0.0, le=1.0)
+    action_confidence: float = Field(alias="actionConfidence", ge=0.0, le=1.0)
+    final_confidence: float = Field(alias="finalConfidence", ge=0.0, le=1.0)
+    reason_code: Literal[
+        "clear_intake",
+        "target_only",
+        "action_only",
+        "possible_fake_intake",
+        "insufficient_evidence",
+        "no_medication_detected",
+    ] = Field(alias="reasonCode")
+    reason_text: str = Field(alias="reasonText", min_length=1, max_length=120)
+    risk_tag: Literal[
+        "possible_fake_intake",
+        "insufficient_evidence",
+        "clear_intake",
+        "no_target",
+    ] = Field(alias="riskTag")
     action_detected: bool = Field(alias="actionDetected")
     targets: list[VideoDetectionTarget] = Field(default_factory=list)
     action_timeline: list[ActionTimeline] = Field(default_factory=list, alias="actionTimeline")
     video_metadata: VideoMetadata = Field(alias="videoMetadata")
     latency_ms: int = Field(alias="latencyMs", ge=0)
     trace_id: str = Field(alias="traceId")
+    llm_provider: Optional[str] = Field(default=None, alias="llmProvider")
+    llm_model: Optional[str] = Field(default=None, alias="llmModel")
+    llm_frame_count: Optional[int] = Field(default=None, alias="llmFrameCount", ge=0)
+    llm_decision_source: Optional[Literal["deepseek_vl", "cloud_vlm", "fallback_rules"]] = Field(
+        default=None, alias="llmDecisionSource"
+    )
+    frame_summary: Optional[str] = Field(default=None, alias="frameSummary")
 
 
 class ErrorResponse(StrictModel):

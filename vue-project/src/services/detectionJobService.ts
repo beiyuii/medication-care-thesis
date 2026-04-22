@@ -8,12 +8,30 @@ export interface DetectionJob {
   status: 'queued' | 'processing' | 'succeeded' | 'failed'
   resultStatus?: 'suspected' | 'confirmed' | 'abnormal' | null
   confidence?: number | null
+  targetConfidence?: number | null
+  actionConfidence?: number | null
+  finalConfidence?: number | null
+  reasonCode?:
+    | 'clear_intake'
+    | 'target_only'
+    | 'action_only'
+    | 'possible_fake_intake'
+    | 'insufficient_evidence'
+    | 'no_medication_detected'
+    | null
+  reasonText?: string | null
+  riskTag?: 'possible_fake_intake' | 'insufficient_evidence' | 'clear_intake' | 'no_target' | null
   actionDetected?: boolean | null
   targetsJson?: string | null
   latencyMs?: number | null
   errorCode?: string | null
   errorMessage?: string | null
   traceId?: string | null
+  llmProvider?: string | null
+  llmModel?: string | null
+  llmFrameCount?: number | null
+  llmDecisionSource?: 'deepseek_vl' | 'cloud_vlm' | 'fallback_rules' | null
+  frameSummary?: string | null
   startedAt?: string | null
   completedAt?: string | null
 }

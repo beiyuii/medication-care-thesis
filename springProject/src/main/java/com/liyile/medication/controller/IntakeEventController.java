@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 服药事件控制器。
- * <p>记录和查询服药事件，包括疑似（suspected）、已确认（confirmed）、异常（abnormal）三种状态。</p>
+ * <p>记录和查询服药事件，包括检测结果、提交记录、审核决策与超时轨迹。</p>
  *
  * @author Liyile
  */
@@ -138,11 +138,11 @@ public class IntakeEventController {
    * @return 更新后的事件对象
    */
   @Operation(
-      summary = "手动确认服药事件",
-      description = "用户手动确认\"疑似已服药\"事件，将状态更新为confirmed，并记录确认人和确认时间")
+      summary = "兼容旧版确认事件",
+      description = "旧版入口，实际会映射为护工对关联提醒实例执行确认通过审核")
   @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "确认成功，返回更新后的事件对象")
   @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "事件不存在")
-  @PreAuthorize("hasAnyRole('ELDER', 'CAREGIVER', 'CHILD')")
+  @PreAuthorize("hasRole('CAREGIVER')")
   @PostMapping("/{id}/confirm")
   public ApiResponse<IntakeEvent> confirm(
       @Parameter(name = "id", description = "事件ID", required = true, example = "1")
@@ -157,27 +157,37 @@ public class IntakeEventController {
       return ApiResponse.failure(ErrorCode.NOT_FOUND, "事件不存在");
     }
     
-    String oldStatus = event.getStatus();
-    event.setStatus("confirmed");
-    event.setConfirmedBy(dto.getConfirmedBy());
-    if (dto.getConfirmTime() != null) {
+    java.sql.Timestamp reviewTime = java.sql.Timestamp.from(Instant.now());
+    if (dto != null && dto.getConfirmTime() != null) {
       try {
-        Instant instant = Instant.parse(dto.getConfirmTime());
-        event.setConfirmedAt(java.sql.Timestamp.from(instant));
+        reviewTime = java.sql.Timestamp.from(Instant.parse(dto.getConfirmTime()));
       } catch (Exception e) {
-        // 如果解析失败，使用当前时间
         logger.warn("解析确认时间失败，使用当前时间: eventId={}, confirmTime={}", id, dto.getConfirmTime());
-        event.setConfirmedAt(java.sql.Timestamp.from(Instant.now()));
+      }
+    }
+
+    event.setStatus("confirmed");
+    event.setEventType(ReminderInstanceService.EVENT_REVIEW_DECIDED);
+    event.setReviewDecision(ReminderInstanceService.DECISION_CONFIRMED);
+    event.setConfirmedBy(dto != null ? dto.getConfirmedBy() : event.getConfirmedBy());
+    event.setConfirmedAt(reviewTime);
+    intakeEventMapper.updateById(event);
+
+    if (event.getReminderInstanceId() != null) {
+      ReminderInstance instance = reminderInstanceService.getById(event.getReminderInstanceId());
+      if (instance != null) {
+        reminderInstanceService.reviewInstance(
+            instance,
+            ReminderInstanceService.DECISION_CONFIRMED,
+            dto != null ? dto.getConfirmedBy() : event.getConfirmedBy(),
+            reviewTime,
+            null);
       }
     } else {
-      event.setConfirmedAt(java.sql.Timestamp.from(Instant.now()));
+      resolvePendingAlertsForSchedule(event);
     }
-    
-    intakeEventMapper.updateById(event);
-    syncReminderInstance(event, dto);
-    resolvePendingAlertsForSchedule(event);
-    logger.info("确认服药事件成功: eventId={}, 旧状态={}, 新状态=confirmed, confirmedBy={}", 
-        id, oldStatus, dto.getConfirmedBy());
+
+    logger.info("确认服药事件成功: eventId={}, confirmedBy={}", id, dto != null ? dto.getConfirmedBy() : null);
     return ApiResponse.success(event);
   }
 
@@ -251,21 +261,6 @@ public class IntakeEventController {
         alertMapper.updateById(alert);
       }
     }
-  }
-
-  private void syncReminderInstance(IntakeEvent event, ConfirmEventDTO dto) {
-    if (event == null || event.getReminderInstanceId() == null) {
-      return;
-    }
-    ReminderInstance instance = reminderInstanceService.getById(event.getReminderInstanceId());
-    if (instance == null) {
-      return;
-    }
-    reminderInstanceService.confirmInstance(
-        instance,
-        dto != null ? dto.getConfirmedBy() : event.getConfirmedBy(),
-        event.getConfirmedAt(),
-        event.getDetectionJobId());
   }
 
   private void attachScheduleMetadata(List<IntakeEvent> events) {

@@ -82,7 +82,7 @@ export const router = createRouter({
           path: 'settings',
           name: 'settings-center',
           component: () => import('@/views/SettingsCenterView.vue'),
-          meta: { requiresAuth: true, role: 'elder' },
+          meta: { requiresAuth: true, allowRoles: ['elder', 'caregiver', 'child'] },
         },
       ],
     },

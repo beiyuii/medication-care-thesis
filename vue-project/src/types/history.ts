@@ -23,6 +23,14 @@ export interface HistorySummary {
 export interface HistoryEvent {
   /** id 唯一标识。 */
   id: string
+  /** eventType 事件类型。 */
+  eventType:
+    | 'plan_scheduled'
+    | 'intake_submitted'
+    | 'detection_completed'
+    | 'review_decided'
+    | 'instance_timeout'
+    | 'retry_created'
   /** timestamp 发生时间。 */
   timestamp: string
   /** medicineName 药品名称。 */
@@ -31,6 +39,12 @@ export interface HistoryEvent {
   planName: string
   /** status 事件状态。 */
   status: 'confirmed' | 'suspected' | 'abnormal'
+  /** detectionStatus 检测状态。 */
+  detectionStatus?: 'none' | 'suspected' | 'confirmed' | 'abnormal'
+  /** reviewDecision 审核决策。 */
+  reviewDecision?: 'confirmed' | 'rejected' | 'needs_evidence' | null
+  /** reviewReason 审核原因。 */
+  reviewReason?: string | null
   /** action 手动确认人或动作说明。 */
   action: string
   /** imageUrl 缩略图地址。 */

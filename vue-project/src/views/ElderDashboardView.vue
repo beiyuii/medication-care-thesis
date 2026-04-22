@@ -2,99 +2,54 @@
 import { computed, onActivated, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import {
-  AlertCircleOutline,
   CheckmarkCircleOutline,
   MedicalOutline,
   NotificationsOutline,
-  SparklesOutline,
-  TimeOutline,
+  WarningOutline,
 } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
 import MetricCard from '@/components/ui/MetricCard.vue'
 import PageHero from '@/components/ui/PageHero.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
-import StatusBar from '@/components/ui/StatusBar.vue'
-import {
-  fetchElderDashboard,
-  type DashboardAlert,
-  type ReminderInstanceItem,
-} from '@/services/dashboardService'
+import { fetchElderDashboard, type ReminderInstanceItem } from '@/services/dashboardService'
 import { extractErrorMessage, logError } from '@/utils/errorHandler'
-
-interface TodayPlanCard {
-  id: string
-  medicine: string
-  dosage: string
-  windowTime: string
-  status: 'pending' | 'confirmed' | 'abnormal'
-}
 
 const router = useRouter()
 const message = useMessage()
 
-const todayPlans = ref<TodayPlanCard[]>([])
+const todayInstances = ref<ReminderInstanceItem[]>([])
 const loading = ref(false)
-const nextReminder = ref<{ time: string; medicine: string; windowEnd: string } | null>(null)
-const unresolvedAlerts = ref<DashboardAlert[]>([])
-const completionRate = ref(0)
 
-const formatClock = (value?: string | null): string => {
-  if (!value) return '--'
+const actionableStatuses = new Set(['caregiver_rejected', 'not_submitted', 'manual_intervention'])
+
+const toClock = (value?: string | null): string => {
+  if (!value) return '--:--'
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
+  if (Number.isNaN(date.getTime())) return value
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-const formatDosage = (instance: ReminderInstanceItem): string => {
-  if (instance.dose && instance.frequency) {
-    return `${instance.dose} · ${instance.frequency}`
-  }
-  return instance.dose || instance.frequency || '--'
+const formatPlanDose = (item: ReminderInstanceItem) =>
+  [item.frequency, item.dose].filter(Boolean).join(' · ') || '--'
+
+const priorityOf = (item: ReminderInstanceItem): number => {
+  if (item.reviewStatus === 'caregiver_rejected') return 0
+  if (item.reviewStatus === 'not_submitted') return 1
+  if (item.reviewStatus === 'manual_intervention') return 2
+  return 9
 }
 
-const mapPlanStatus = (
-  status: ReminderInstanceItem['status'],
-): 'pending' | 'confirmed' | 'abnormal' => {
-  if (status === 'confirmed' || status === 'resolved') {
-    return 'confirmed'
-  }
-  if (status === 'abnormal' || status === 'missed') {
-    return 'abnormal'
-  }
-  return 'pending'
-}
-
-const loadTodayPlans = async () => {
+const loadDashboard = async () => {
   loading.value = true
   try {
     const dashboard = await fetchElderDashboard()
-    unresolvedAlerts.value = dashboard.activeAlerts.filter(alert => alert.status !== 'resolved')
-    completionRate.value = dashboard.completionRate
-    todayPlans.value = dashboard.todayInstances
-      .map(instance => ({
-        id: String(instance.id),
-        medicine: instance.medicineName,
-        dosage: formatDosage(instance),
-        windowTime: `${formatClock(instance.windowStartAt)} - ${formatClock(instance.windowEndAt)}`,
-        status: mapPlanStatus(instance.status),
-      }))
-      .sort((a, b) => {
-        const timeA = a.windowTime.split(' - ')[0] || '00:00'
-        const timeB = b.windowTime.split(' - ')[0] || '00:00'
-        return timeA.localeCompare(timeB)
-      })
-
-    nextReminder.value = dashboard.nextReminder
-      ? {
-          time: formatClock(dashboard.nextReminder.windowStartAt),
-          medicine: dashboard.nextReminder.medicineName,
-          windowEnd: formatClock(dashboard.nextReminder.windowEndAt),
-        }
-      : null
+    todayInstances.value = [...dashboard.todayInstances].sort((a, b) => {
+      const priorityDiff = priorityOf(a) - priorityOf(b)
+      if (priorityDiff !== 0) return priorityDiff
+      return new Date(a.windowStartAt).getTime() - new Date(b.windowStartAt).getTime()
+    })
   } catch (error: unknown) {
-    const errorMsg = extractErrorMessage(error, '加载首页聚合数据失败')
+    const errorMsg = extractErrorMessage(error, '加载老人端首页失败')
     message.error(errorMsg)
     logError(error, '加载 elder dashboard')
   } finally {
@@ -102,249 +57,255 @@ const loadTodayPlans = async () => {
   }
 }
 
-const shouldShowStatusBar = computed(
-  () =>
-    unresolvedAlerts.value.length > 0 ||
-    todayPlans.value.some(plan => plan.status === 'abnormal'),
+const primaryTask = computed(
+  () => todayInstances.value.find(item => actionableStatuses.has(item.reviewStatus)) ?? null,
 )
 
-const latestAlert = computed(() => {
-  if (unresolvedAlerts.value.length === 0) return null
-  return [...unresolvedAlerts.value].sort((a, b) => {
-    const timeA = new Date(a.ts).getTime()
-    const timeB = new Date(b.ts).getTime()
-    return timeB - timeA
-  })[0]
-})
+const timelineItems = computed(() =>
+  todayInstances.value.filter(item => item.reviewStatus !== 'manual_intervention'),
+)
+
+const feedbackItems = computed(() =>
+  todayInstances.value.filter(item =>
+    ['waiting_caregiver', 'review_timeout', 'caregiver_confirmed', 'abnormal_pending_review', 'evidence_required', 'waiting_caregiver_late'].includes(item.reviewStatus),
+  ),
+)
 
 const confirmedCount = computed(
-  () => todayPlans.value.filter(plan => plan.status === 'confirmed').length,
+  () => todayInstances.value.filter(item => item.reviewStatus === 'caregiver_confirmed').length,
+)
+const waitingCount = computed(
+  () => todayInstances.value.filter(item => ['waiting_caregiver', 'review_timeout', 'waiting_caregiver_late'].includes(item.reviewStatus)).length,
+)
+const retryCount = computed(
+  () => todayInstances.value.filter(item => item.reviewStatus === 'caregiver_rejected').length,
 )
 
-const abnormalCount = computed(
-  () => todayPlans.value.filter(plan => plan.status === 'abnormal').length,
-)
-
-const pendingCount = computed(
-  () => todayPlans.value.filter(plan => plan.status === 'pending').length,
-)
-
-const heroDescription = computed(() => {
-  if (!nextReminder.value) {
-    return '当前没有待执行的提醒实例，你可以先查看计划或回顾历史记录。'
+const statusText = (status: ReminderInstanceItem['reviewStatus']) => {
+  switch (status) {
+    case 'not_submitted':
+      return '待服药'
+    case 'waiting_caregiver':
+    case 'review_timeout':
+      return '等待护工确认'
+    case 'waiting_caregiver_late':
+      return '迟服待确认'
+    case 'caregiver_rejected':
+      return '需重新服药'
+    case 'caregiver_confirmed':
+      return '已确认完成'
+    case 'abnormal_pending_review':
+      return '检测异常待审核'
+    case 'evidence_required':
+      return '等待补充证据'
+    case 'manual_intervention':
+      return '请联系护工处理'
+    case 'missed':
+      return '已漏服'
+    default:
+      return status
   }
-  return `下一次提醒聚焦在 ${nextReminder.value.medicine}，建议在 ${nextReminder.value.windowEnd} 前完成检测并确认。`
+}
+
+const statusTone = (status: ReminderInstanceItem['reviewStatus']) => {
+  switch (status) {
+    case 'caregiver_confirmed':
+      return 'success'
+    case 'caregiver_rejected':
+    case 'manual_intervention':
+      return 'danger'
+    case 'abnormal_pending_review':
+    case 'evidence_required':
+    case 'missed':
+      return 'warning'
+    default:
+      return 'info'
+  }
+}
+
+const primaryButtonLabel = computed(() => {
+  if (!primaryTask.value) return '今日暂无主任务'
+  switch (primaryTask.value.reviewStatus) {
+    case 'not_submitted':
+      return '开始服药'
+    case 'caregiver_rejected':
+      return '重新服药'
+    case 'manual_intervention':
+      return '请联系护工处理'
+    default:
+      return '查看详情'
+  }
 })
 
-const latestAlertTone = computed(() => {
-  if (!latestAlert.value) return 'info'
-  if (latestAlert.value.severity === 'high') return 'error'
-  if (latestAlert.value.severity === 'medium') return 'warning'
-  return 'info'
+const primaryDescription = computed(() => {
+  if (!primaryTask.value) return '当前没有需要你立刻处理的任务。'
+  if (primaryTask.value.reviewStatus === 'caregiver_rejected') {
+    return primaryTask.value.reviewReason || '护工判定这次服药需要重新执行，请按提示重新服药。'
+  }
+  if (primaryTask.value.reviewStatus === 'manual_intervention') {
+    return '这次任务已达到重试上限，请直接联系护工处理。'
+  }
+  return '请按照当前计划完成服药，提交后等待护工确认。'
 })
 
-const handleStartDetection = () => {
+const handlePrimaryAction = () => {
+  if (!primaryTask.value) return
+  if (primaryTask.value.reviewStatus === 'manual_intervention') {
+    router.push('/history')
+    return
+  }
   router.push('/detection')
 }
 
-const toStatusTone = (status: TodayPlanCard['status']) => {
-  if (status === 'confirmed') return 'success'
-  if (status === 'abnormal') return 'danger'
-  return 'warning'
-}
-
-const toStatusLabel = (status: TodayPlanCard['status']) => {
-  if (status === 'confirmed') return '已确认'
-  if (status === 'abnormal') return '异常'
-  return '待执行'
-}
-
-onMounted(loadTodayPlans)
-onActivated(loadTodayPlans)
+onMounted(loadDashboard)
+onActivated(loadDashboard)
 </script>
 
 <template>
   <div class="space-y-6">
-    <StatusBar
-      v-if="shouldShowStatusBar && latestAlert"
-      :type="latestAlertTone as 'info' | 'success' | 'warning' | 'error'"
-      :title="latestAlert.title"
-      message="请优先处理当前异常，避免影响今日提醒节奏。"
-    >
-      <template #action>
-        <RouterLink
-          to="/alerts"
-          class="text-sm font-semibold text-danger hover:text-danger/80"
-        >
-          查看异常
-        </RouterLink>
-      </template>
-    </StatusBar>
-
     <PageHero
-      eyebrow="Today focus"
-      :title="nextReminder ? `${nextReminder.time} · ${nextReminder.medicine}` : '今天的提醒已经清空'"
-      :description="heroDescription"
+      eyebrow="Primary task"
+      :title="primaryTask ? `${primaryTask.medicineName} · ${statusText(primaryTask.reviewStatus)}` : '今天暂无待处理任务'"
+      :description="primaryDescription"
       tone="brand"
     >
       <template #meta>
         <StatusBadge
-          :label="nextReminder ? `请在 ${nextReminder.windowEnd} 前完成` : '当前无待执行提醒'"
-          :tone="nextReminder ? 'info' : 'neutral'"
+          :label="primaryTask ? `${toClock(primaryTask.windowStartAt)} - ${toClock(primaryTask.windowEndAt)}` : '当前空闲'"
+          :tone="primaryTask ? 'info' : 'neutral'"
         />
-        <StatusBadge :label="`今日完成度 ${completionRate}%`" tone="success" />
-        <StatusBadge :label="`异常 ${unresolvedAlerts.length} 条`" :tone="unresolvedAlerts.length > 0 ? 'danger' : 'neutral'" />
+        <StatusBadge
+          v-if="primaryTask"
+          :label="formatPlanDose(primaryTask)"
+          tone="neutral"
+        />
       </template>
       <template #actions>
-        <NButton type="primary" size="large" @click="handleStartDetection">
-          进入检测流程
+        <NButton
+          type="primary"
+          size="large"
+          :disabled="!primaryTask"
+          @click="handlePrimaryAction"
+        >
+          {{ primaryButtonLabel }}
         </NButton>
-        <RouterLink to="/plans">
-          <NButton size="large" tertiary>查看用药计划</NButton>
+        <RouterLink to="/history">
+          <NButton size="large" tertiary>查看记录</NButton>
         </RouterLink>
       </template>
     </PageHero>
 
     <section class="grid gap-4 md:grid-cols-3">
       <MetricCard
-        label="今日提醒总数"
-        :value="todayPlans.length"
-        helper="所有提醒实例都按时间顺序汇总在这里。"
+        label="今日计划"
+        :value="todayInstances.length"
+        helper="按时段拆分后的所有服药任务。"
         tone="neutral"
         :icon="NotificationsOutline"
       />
       <MetricCard
-        label="已确认服药"
+        label="已确认完成"
         :value="confirmedCount"
-        helper="已完成人工确认或系统确认的提醒实例。"
+        helper="护工已经确认通过的次数。"
         tone="success"
         :icon="CheckmarkCircleOutline"
       />
       <MetricCard
-        label="待处理提醒"
-        :value="abnormalCount > 0 ? abnormalCount : pendingCount"
-        :helper="abnormalCount > 0 ? '优先处理异常提醒，避免形成连续漏服。' : '待执行提醒会按照时间窗逐步进入检测流程。'"
-        :tone="abnormalCount > 0 ? 'danger' : 'warning'"
-        :icon="AlertCircleOutline"
+        label="需关注"
+        :value="retryCount > 0 ? retryCount : waitingCount"
+        :helper="retryCount > 0 ? '优先处理被驳回的重服任务。' : '等待护工确认的任务会显示在反馈区。'"
+        :tone="retryCount > 0 ? 'danger' : 'warning'"
+        :icon="WarningOutline"
       />
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
+    <section class="grid gap-6 xl:grid-cols-[1.2fr_0.9fr]">
       <NCard class="border-white/80 bg-white/78 shadow-card" :bordered="false">
-        <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div class="flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">
               Today timeline
             </p>
-            <h3 class="mt-2 text-2xl font-semibold text-text">今日提醒时间线</h3>
-            <p class="mt-2 text-sm leading-7 text-muted">
-              每次提醒以时间窗、药品名称和当前状态呈现，尽量让你一眼看到下一步要做什么。
-            </p>
+            <h3 class="mt-2 text-2xl font-semibold text-text">今日计划时间线</h3>
           </div>
-          <RouterLink to="/history">
-            <NButton quaternary>查看历史统计</NButton>
+          <RouterLink to="/plans">
+            <NButton quaternary>查看计划</NButton>
           </RouterLink>
         </div>
 
-        <div class="mt-6 space-y-4">
-          <NSkeleton v-if="loading" text :repeat="5" />
-          <NEmpty v-else-if="todayPlans.length === 0" description="今日暂无提醒实例" />
+        <div class="mt-5 space-y-3">
+          <NSkeleton v-if="loading" text :repeat="4" />
+          <NEmpty v-else-if="timelineItems.length === 0" description="今日暂无服药任务" />
           <article
+            v-for="item in timelineItems"
             v-else
-            v-for="plan in todayPlans"
-            :key="plan.id"
-            class="group rounded-[26px] border border-line/70 bg-[#fffcf6] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-card"
+            :key="item.id"
+            class="rounded-[24px] border border-line/70 bg-[#fffcf6] p-4"
           >
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div class="flex items-start gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <NIcon :component="TimeOutline" size="20" />
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-3">
+                  <p class="text-lg font-semibold text-text">{{ item.medicineName }}</p>
+                  <StatusBadge :label="statusText(item.reviewStatus)" :tone="statusTone(item.reviewStatus)" />
                 </div>
-                <div class="space-y-2">
-                  <div class="flex flex-wrap items-center gap-3">
-                    <h4 class="text-xl font-semibold text-text">{{ plan.medicine }}</h4>
-                    <StatusBadge :label="toStatusLabel(plan.status)" :tone="toStatusTone(plan.status)" />
-                  </div>
-                  <p class="text-sm text-muted">{{ plan.dosage }}</p>
-                  <p class="text-sm text-muted">时间窗：{{ plan.windowTime }}</p>
-                </div>
+                <p class="text-sm text-muted">{{ formatPlanDose(item) }}</p>
+                <p class="text-sm text-muted">时间窗：{{ toClock(item.windowStartAt) }} - {{ toClock(item.windowEndAt) }}</p>
               </div>
-              <div class="flex shrink-0 flex-wrap gap-3">
-                <RouterLink v-if="plan.status === 'pending'" to="/detection">
-                  <NButton type="primary">开始检测</NButton>
-                </RouterLink>
-                <RouterLink v-else-if="plan.status === 'abnormal'" to="/alerts">
-                  <NButton type="error">处理异常</NButton>
-                </RouterLink>
-                <RouterLink v-else to="/history">
-                  <NButton tertiary>查看记录</NButton>
-                </RouterLink>
+              <div class="flex items-center gap-3">
+                <StatusBadge :label="`第 ${item.retryCount + 1} 次尝试`" tone="neutral" />
+                <NButton
+                  v-if="item.reviewStatus === 'not_submitted' || item.reviewStatus === 'caregiver_rejected'"
+                  type="primary"
+                  @click="router.push('/detection')"
+                >
+                  {{ item.reviewStatus === 'caregiver_rejected' ? '重新服药' : '开始服药' }}
+                </NButton>
               </div>
             </div>
           </article>
         </div>
       </NCard>
 
-      <div class="space-y-6">
-        <NCard class="border-white/80 bg-white/78 shadow-card" :bordered="false">
-          <div class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <NIcon :component="SparklesOutline" size="22" />
-            </div>
-            <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">
-                Detection guide
-              </p>
-              <h3 class="text-xl font-semibold text-text">开始检测前</h3>
-            </div>
+      <NCard class="border-white/80 bg-white/78 shadow-card" :bordered="false">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <NIcon :component="MedicalOutline" size="20" />
           </div>
-          <ul class="mt-5 space-y-3 text-sm leading-7 text-muted">
-            <li>保持桌面整洁，把药品、手部和面部留在同一画面内。</li>
-            <li>进入检测页后只保留一个主要动作：开始录制并等待结果。</li>
-            <li>如果系统给出疑似结果，直接在结果页完成人工确认即可。</li>
-          </ul>
-        </NCard>
-
-        <NCard class="border-white/80 bg-white/78 shadow-card" :bordered="false">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">
-                Active alerts
-              </p>
-              <h3 class="mt-2 text-xl font-semibold text-text">当前异常</h3>
-            </div>
-            <RouterLink to="/alerts">
-              <NButton quaternary>全部查看</NButton>
-            </RouterLink>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">
+              Caregiver feedback
+            </p>
+            <h3 class="text-2xl font-semibold text-text">护工确认反馈</h3>
           </div>
+        </div>
 
-          <div class="mt-5 space-y-3">
-            <NEmpty v-if="unresolvedAlerts.length === 0" description="当前没有未处理异常" />
-            <article
-              v-for="alert in unresolvedAlerts.slice(0, 3)"
-              v-else
-              :key="alert.id"
-              class="rounded-[22px] border border-danger/15 bg-danger/5 p-4"
-            >
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-2">
-                  <div class="flex items-center gap-3">
-                    <NIcon :component="MedicalOutline" size="18" class="text-danger" />
-                    <p class="font-semibold text-text">{{ alert.title }}</p>
-                  </div>
-                  <p class="text-sm leading-6 text-muted">
-                    {{ alert.description || '请进入告警中心查看详情并处理。' }}
-                  </p>
-                </div>
-                <StatusBadge
-                  :label="alert.severity === 'high' ? '高优先级' : alert.severity === 'medium' ? '中优先级' : '提示'"
-                  :tone="alert.severity === 'high' ? 'danger' : alert.severity === 'medium' ? 'warning' : 'info'"
-                />
+        <div class="mt-5 space-y-3">
+          <NEmpty v-if="feedbackItems.length === 0" description="暂时没有新的护工反馈" />
+          <article
+            v-for="item in feedbackItems"
+            v-else
+            :key="item.id"
+            class="rounded-[24px] border border-line/70 bg-[#fffcf6] p-4"
+          >
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center gap-3">
+                <p class="font-semibold text-text">{{ item.medicineName }}</p>
+                <StatusBadge :label="statusText(item.reviewStatus)" :tone="statusTone(item.reviewStatus)" />
               </div>
-            </article>
-          </div>
-        </NCard>
-      </div>
+              <p class="text-sm text-muted">
+                {{ item.reviewReason || (item.reviewStatus === 'caregiver_confirmed' ? '护工已确认本次服药完成。' : '正在等待护工处理。') }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ item.reviewedAt ? `处理时间：${toClock(item.reviewedAt)}` : `提交时间窗：${toClock(item.windowStartAt)} - ${toClock(item.windowEndAt)}` }}
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <div class="mt-5 rounded-[24px] border border-line/70 bg-[#fffcf6] p-4 text-sm leading-7 text-muted">
+          老人端只保留一个主任务。等待护工确认时不再出现额外操作，避免把“等待”误当成“还要继续点按钮”。
+        </div>
+      </NCard>
     </section>
   </div>
 </template>

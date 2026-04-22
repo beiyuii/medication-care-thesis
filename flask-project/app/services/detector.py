@@ -71,6 +71,12 @@ class DetectorService:
         return DetectionResponse(
             status=result["status"],
             confidence=result["confidence"],
+            target_confidence=result["target_confidence"],
+            action_confidence=result["action_confidence"],
+            final_confidence=result["final_confidence"],
+            reason_code=result["reason_code"],
+            reason_text=result["reason_text"],
+            risk_tag=result["risk_tag"],
             action_detected=result["action_detected"],
             targets=result["targets"],
             latency_ms=latency_ms,
@@ -107,23 +113,55 @@ class DetectorService:
             )
             for target in target_detections
         ]
-        confidence = max((target.score for target in targets), default=0.0)
+        target_confidence = round(max((target.score for target in targets), default=0.0), 3)
         action_detected = bool(
             hand_mouth_distance is not None
             and hand_mouth_distance <= self.settings.action_distance_threshold_cm
         )
+        action_confidence = 0.82 if action_detected else 0.08
         has_target = len(targets) > 0
 
         if has_target and action_detected:
             status = "confirmed"
+            reason_code = "clear_intake"
+            reason_text = "单帧中同时检测到药品目标与服药动作。"
+            risk_tag = "clear_intake"
         elif has_target:
             status = "suspected"
+            reason_code = "possible_fake_intake" if target_confidence >= 0.65 else "target_only"
+            reason_text = (
+                "检测到药品目标，但单帧动作证据不足，需结合视频或人工复核。"
+            )
+            risk_tag = (
+                "possible_fake_intake"
+                if reason_code == "possible_fake_intake"
+                else "insufficient_evidence"
+            )
+        elif action_detected:
+            status = "suspected"
+            reason_code = "action_only"
+            reason_text = "检测到手口接近动作，但未识别到稳定药品目标。"
+            risk_tag = "insufficient_evidence"
         else:
             status = "abnormal"
+            reason_code = "no_medication_detected"
+            reason_text = "未检测到药品目标或有效动作。"
+            risk_tag = "no_target"
+
+        final_confidence = round(
+            min(0.99, target_confidence * 0.55 + action_confidence * 0.45),
+            3,
+        )
 
         return {
             "status": status,
-            "confidence": confidence,
+            "confidence": final_confidence,
+            "target_confidence": target_confidence,
+            "action_confidence": action_confidence,
+            "final_confidence": final_confidence,
+            "reason_code": reason_code,
+            "reason_text": reason_text,
+            "risk_tag": risk_tag,
             "action_detected": action_detected,
             "targets": targets,
             "trace_id": get_trace_id(),

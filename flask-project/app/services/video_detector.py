@@ -1,9 +1,8 @@
-"""视频检测服务：集成YOLOv8和MediaPipe Hands进行视频检测。"""
+"""视频检测服务：集成本地规则与云端视觉复核。"""
 
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,14 +11,15 @@ from typing import Any
 import cv2
 import numpy as np
 import onnxruntime as ort
-from PIL import Image
 
 from app.core.config import Settings, get_settings
 from app.core.exceptions import ModelInferenceError, ModelNotReadyError
 from app.core.logger import get_logger
 from app.core.tracing import get_trace_id
 from app.schemas import VideoDetectionRequest, VideoDetectionResponse, VideoMetadata
+from app.services.deepseek_vl_client import VisionReviewResult, vision_review_client
 from app.services.result_aggregator import FrameDetectionResult, ResultAggregator
+from app.services.video_loader import VideoLoader
 
 logger = get_logger()
 
@@ -72,6 +72,7 @@ class VideoDetectorService:
         
         self._semaphore = asyncio.Semaphore(self.settings.semaphore_slots)
         self.result_aggregator = ResultAggregator(self.settings)
+        self.video_loader = VideoLoader(self.settings)
 
     async def load_yolo_model(self) -> LoadedYOLOModel:
         """
@@ -279,32 +280,7 @@ class VideoDetectorService:
             return detections
         except Exception as exc:
             logger.exception("yolo_inference_failed", error=str(exc))
-            # 如果模型未加载或推理失败，返回伪结果用于测试
-            return self._generate_mock_detections(frame)
-
-    def _generate_mock_detections(self, frame: np.ndarray) -> list[dict[str, Any]]:
-        """
-        生成伪检测结果（用于测试，当模型未加载时）。
-
-        Args:
-            frame: 输入帧
-
-        Returns:
-            list[dict]: 伪检测结果
-        """
-        fingerprint = hashlib.sha1(frame.tobytes()).digest()
-        base_score = fingerprint[0] / 255
-        confidence = round(0.35 + 0.6 * base_score, 3)
-
-        if confidence >= self.settings.confidence_threshold:
-            return [
-                {
-                    "label": "PILL",
-                    "score": confidence,
-                    "bbox": (0.1, 0.1, 0.5, 0.5),
-                }
-            ]
-        return []
+            return []
 
     def _detect_hand_landmarks(
         self, frame: np.ndarray
@@ -456,18 +432,51 @@ class VideoDetectorService:
                 # 聚合结果
                 aggregated_targets = self.result_aggregator.aggregate_targets(frame_results)
                 action_timeline = self.result_aggregator.detect_action_timeline(frame_results)
-                status, confidence, action_detected = (
-                    self.result_aggregator.calculate_overall_status(
-                        aggregated_targets, action_timeline
-                    )
+                fallback_assessment = self.result_aggregator.calculate_overall_status(
+                    aggregated_targets,
+                    action_timeline,
+                    len(frames),
+                )
+                llm_result = await asyncio.to_thread(
+                    self._review_with_cloud_vlm,
+                    frames,
+                    frame_results,
+                    aggregated_targets,
+                    action_timeline,
+                    video_metadata,
+                    payload,
+                )
+                final_status = llm_result.status if llm_result else fallback_assessment.status
+                final_target_confidence = (
+                    llm_result.target_confidence if llm_result else fallback_assessment.target_confidence
+                )
+                final_action_confidence = (
+                    llm_result.action_confidence if llm_result else fallback_assessment.action_confidence
+                )
+                final_confidence = (
+                    llm_result.final_confidence if llm_result else fallback_assessment.final_confidence
+                )
+                final_reason_code = llm_result.reason_code if llm_result else fallback_assessment.reason_code
+                final_reason_text = llm_result.reason_text if llm_result else fallback_assessment.reason_text
+                final_risk_tag = llm_result.risk_tag if llm_result else fallback_assessment.risk_tag
+                final_action_detected = (
+                    bool(llm_result.hand_to_mouth_action or llm_result.swallowing_likely)
+                    if llm_result
+                    else fallback_assessment.action_detected
                 )
 
                 latency_ms = int((time.perf_counter() - start_time) * 1000)
 
                 return VideoDetectionResponse(
-                    status=status,
-                    confidence=confidence,
-                    action_detected=action_detected,
+                    status=final_status,
+                    confidence=final_confidence,
+                    target_confidence=final_target_confidence,
+                    action_confidence=final_action_confidence,
+                    final_confidence=final_confidence,
+                    reason_code=final_reason_code,
+                    reason_text=final_reason_text,
+                    risk_tag=final_risk_tag,
+                    action_detected=final_action_detected,
                     targets=aggregated_targets,
                     action_timeline=action_timeline,
                     video_metadata=VideoMetadata(
@@ -478,12 +487,81 @@ class VideoDetectorService:
                     ),
                     latency_ms=latency_ms,
                     trace_id=get_trace_id(),
+                    llm_provider=llm_result.llm_provider if llm_result else "fallback_rules",
+                    llm_model=llm_result.llm_model if llm_result else None,
+                    llm_frame_count=llm_result.llm_frame_count if llm_result else 0,
+                    llm_decision_source=llm_result.llm_decision_source if llm_result else "fallback_rules",
+                    frame_summary=llm_result.frame_summary if llm_result else "云端复核失败，当前结果退回本地规则判断。",
                 )
             except Exception as exc:
                 logger.exception("video_detection_failed", error=str(exc))
                 raise ModelInferenceError("Video detection failed") from exc
 
+    def _review_with_cloud_vlm(
+        self,
+        frames: list[np.ndarray],
+        frame_results: list[FrameDetectionResult],
+        aggregated_targets,
+        action_timeline,
+        video_metadata,
+        payload: VideoDetectionRequest,
+    ) -> VisionReviewResult | None:
+        if not vision_review_client.is_enabled():
+            return None
+        suspicious_frame_index = self._pick_suspicious_frame_index(frame_results)
+        key_frames = self.video_loader.select_key_frames(
+            frames,
+            desired_count=self.settings.deepseek_frame_count,
+            suspicious_frame_index=suspicious_frame_index,
+        )
+        if not key_frames:
+            return None
+        context = {
+            "patientId": payload.patient_id,
+            "scheduleId": payload.schedule_id,
+            "videoMetadata": {
+                "duration": round(video_metadata.duration, 2),
+                "fps": round(video_metadata.fps, 2),
+                "totalFrames": video_metadata.total_frames,
+            },
+            "ruleSignals": {
+                "targetLabels": [target.label for target in aggregated_targets],
+                "targetScores": [target.score for target in aggregated_targets],
+                "actionSegmentCount": len(action_timeline),
+                "longestActionSegment": max(
+                    (segment.end_frame - segment.start_frame + 1 for segment in action_timeline),
+                    default=0,
+                ),
+                "handMouthCloseDetected": any(
+                    frame_result.hand_mouth_distance is not None
+                    and frame_result.hand_mouth_distance <= self.settings.action_distance_threshold_cm
+                    for frame_result in frame_results
+                ),
+            },
+        }
+        try:
+            return vision_review_client.review_frames(key_frames, context=context)
+        except Exception as exc:
+            logger.warning("cloud_vlm_review_failed", error=str(exc))
+            return None
+
+    def _pick_suspicious_frame_index(self, frame_results: list[FrameDetectionResult]) -> int | None:
+        best_index: int | None = None
+        best_score = -1.0
+        for frame_result in frame_results:
+            target_score = max((float(target["score"]) for target in frame_result.targets), default=0.0)
+            distance_score = 0.0
+            if frame_result.hand_mouth_distance is not None:
+              distance_score = max(
+                    0.0,
+                    1.0 - (frame_result.hand_mouth_distance / max(self.settings.action_distance_threshold_cm, 0.1)),
+                )
+            score = target_score * 0.65 + distance_score * 0.35
+            if score > best_score:
+                best_score = score
+                best_index = frame_result.frame_index
+        return best_index
+
 
 # 创建全局单例
 video_detector_service = VideoDetectorService()
-

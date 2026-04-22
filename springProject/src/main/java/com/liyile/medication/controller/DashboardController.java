@@ -100,6 +100,7 @@ public class DashboardController {
       vo.setActivePatient(null);
       vo.setActiveAlerts(Collections.emptyList());
       vo.setRecentEvents(Collections.emptyList());
+      vo.setPendingReviewInstances(Collections.emptyList());
       return ApiResponse.success(vo);
     }
 
@@ -114,6 +115,9 @@ public class DashboardController {
         .ne(Alert::getStatus, "resolved")
         .orderByDesc(Alert::getTs)
         .last("LIMIT 10")));
+    vo.setPendingReviewInstances(
+        reminderInstanceService.toVOs(
+            reminderInstanceService.listPendingReviewInstances(activePatientId, LocalDate.now())));
     vo.setCompletionRate(
         (int) Math.round(reportService.getSummary(activePatientId, "day").getConfirmRate() * 100));
     List<IntakeEvent> recentEvents = intakeEventMapper.selectList(new LambdaQueryWrapper<IntakeEvent>()

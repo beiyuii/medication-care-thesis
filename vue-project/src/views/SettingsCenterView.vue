@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import type { UserSetting } from '@/types/settings'
 import { fetchUserSettings, updateUserSettings } from '@/services/settingsService'
@@ -7,6 +7,7 @@ import { getProfile } from '@/services/authService'
 import { useRequest } from '@/composables/useRequest'
 import { extractErrorMessage, logError } from '@/utils/errorHandler'
 import type { UserProfileResponse } from '@/types/auth'
+import { bindPatientByElderUsername } from '@/services/patientService'
 
 /** formModel 保存设置表单。 */
 const formModel = reactive<UserSetting>({
@@ -24,6 +25,8 @@ const profileLoading = ref(false)
 /** userProfile 保存用户详细信息。 */
 const userProfile = ref<UserProfileResponse | null>(null)
 const message = useMessage()
+const bindingUsername = ref('')
+const bindingSubmitting = ref(false)
 
 const fallbackOptions = [
   { label: 'WebGPU 优先', value: 'webgpu' },
@@ -45,6 +48,19 @@ const { execute: loadSettings } = useRequest(fetchUserSettings, {
     logError(error, '加载设置')
     loading.value = false
   },
+})
+
+const isCareRole = computed(
+  () => userProfile.value?.role === 'caregiver' || userProfile.value?.role === 'child',
+)
+
+const canBindAnotherPatient = computed(() => {
+  if (!userProfile.value) return false
+  if (userProfile.value.role === 'caregiver') return true
+  if (userProfile.value.role === 'child') {
+    return (userProfile.value.patients?.length ?? 0) === 0
+  }
+  return false
 })
 
 const handleSubmit = async () => {
@@ -79,6 +95,27 @@ const loadUserProfile = async () => {
     logError(error, '加载用户信息')
   } finally {
     profileLoading.value = false
+  }
+}
+
+const handleBindPatient = async () => {
+  if (!bindingUsername.value.trim()) {
+    message.warning('请输入老人用户名')
+    return
+  }
+
+  bindingSubmitting.value = true
+  try {
+    const patient = await bindPatientByElderUsername(bindingUsername.value.trim())
+    message.success(`绑定成功：${patient.name}`)
+    bindingUsername.value = ''
+    await loadUserProfile()
+  } catch (error: unknown) {
+    const errorMsg = extractErrorMessage(error, '绑定失败')
+    message.error(errorMsg)
+    logError(error, '绑定患者')
+  } finally {
+    bindingSubmitting.value = false
   }
 }
 
@@ -155,8 +192,41 @@ onMounted(() => {
             </NCard>
           </div>
         </div>
-        <div v-else-if="userProfile.role === 'elder'" class="text-sm text-muted">
-          当前账户为老年人角色，无需关联患者
+        <div v-else-if="userProfile.role === 'elder'" class="space-y-2 text-sm text-muted">
+          <p>当前账户为老年人角色，无需主动关联患者。</p>
+          <p>请把你的登录用户名 <span class="font-semibold text-text">{{ userProfile.username }}</span> 提供给护工或子女，他们会用这个用户名完成绑定。</p>
+        </div>
+        <div v-else class="text-sm text-muted">
+          当前还没有关联老人，请先在下方完成绑定。
+        </div>
+
+        <div v-if="isCareRole" class="rounded-[20px] border border-line/70 bg-[#fffcf6] p-4">
+          <div class="space-y-2">
+            <p class="font-medium text-text">绑定老人账号</p>
+            <p class="text-sm text-muted">
+              {{ userProfile.role === 'caregiver'
+                ? '输入老人注册时使用的用户名，可重复绑定多位老人。'
+                : '输入老人注册时使用的用户名，子女账号当前仅支持绑定一位老人。' }}
+            </p>
+          </div>
+          <div class="mt-4 flex flex-col gap-3 md:flex-row">
+            <NInput
+              v-model:value="bindingUsername"
+              placeholder="请输入老人用户名，例如 elder1"
+              :disabled="!canBindAnotherPatient"
+            />
+            <NButton
+              type="primary"
+              :loading="bindingSubmitting"
+              :disabled="!canBindAnotherPatient"
+              @click="handleBindPatient"
+            >
+              立即绑定
+            </NButton>
+          </div>
+          <p v-if="!canBindAnotherPatient && userProfile.role === 'child'" class="mt-3 text-sm text-muted">
+            当前子女账号已经绑定一位老人，如需更换，需要后续补充解绑能力。
+          </p>
         </div>
       </div>
       <div v-else class="text-muted text-center py-4">暂无用户信息</div>

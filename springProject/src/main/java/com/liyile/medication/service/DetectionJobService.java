@@ -120,12 +120,23 @@ public class DetectionJobService {
     vo.setStatus(job.getStatus());
     vo.setResultStatus(job.getResultStatus());
     vo.setConfidence(job.getConfidence());
+    vo.setTargetConfidence(job.getTargetConfidence());
+    vo.setActionConfidence(job.getActionConfidence());
+    vo.setFinalConfidence(job.getFinalConfidence());
+    vo.setReasonCode(job.getReasonCode());
+    vo.setReasonText(job.getReasonText());
+    vo.setRiskTag(job.getRiskTag());
     vo.setActionDetected(job.getActionDetected());
     vo.setTargetsJson(job.getTargetsJson());
     vo.setLatencyMs(job.getLatencyMs());
     vo.setErrorCode(job.getErrorCode());
     vo.setErrorMessage(job.getErrorMessage());
     vo.setTraceId(job.getTraceId());
+    vo.setLlmProvider(job.getLlmProvider());
+    vo.setLlmModel(job.getLlmModel());
+    vo.setLlmFrameCount(job.getLlmFrameCount());
+    vo.setLlmDecisionSource(job.getLlmDecisionSource());
+    vo.setFrameSummary(job.getFrameSummary());
     vo.setStartedAt(formatTimestamp(job.getStartedAt()));
     vo.setCompletedAt(formatTimestamp(job.getCompletedAt()));
     return vo;
@@ -194,11 +205,22 @@ public class DetectionJobService {
 
       job.setStatus("succeeded");
       job.setResultStatus(payload.getStatus());
-      job.setConfidence(payload.getConfidence());
+      job.setConfidence(payload.getFinalConfidence() != null ? payload.getFinalConfidence() : payload.getConfidence());
+      job.setTargetConfidence(payload.getTargetConfidence());
+      job.setActionConfidence(payload.getActionConfidence());
+      job.setFinalConfidence(payload.getFinalConfidence() != null ? payload.getFinalConfidence() : payload.getConfidence());
+      job.setReasonCode(payload.getReasonCode());
+      job.setReasonText(payload.getReasonText());
+      job.setRiskTag(payload.getRiskTag());
       job.setActionDetected(payload.getActionDetected());
       job.setTargetsJson(payload.getTargetsJson(objectMapper));
       job.setLatencyMs(payload.getLatencyMs());
       job.setTraceId(payload.getTraceId() != null ? payload.getTraceId() : job.getTraceId());
+      job.setLlmProvider(payload.getLlmProvider());
+      job.setLlmModel(payload.getLlmModel());
+      job.setLlmFrameCount(payload.getLlmFrameCount());
+      job.setLlmDecisionSource(payload.getLlmDecisionSource());
+      job.setFrameSummary(payload.getFrameSummary());
       job.setCompletedAt(Timestamp.from(Instant.now()));
       job.setUpdatedAt(Timestamp.from(Instant.now()));
       detectionJobMapper.updateById(job);
@@ -277,10 +299,21 @@ public class DetectionJobService {
   public static class FlaskVideoDetectionResponse {
     private String status;
     private Double confidence;
+    private Double targetConfidence;
+    private Double actionConfidence;
+    private Double finalConfidence;
+    private String reasonCode;
+    private String reasonText;
+    private String riskTag;
     private Boolean actionDetected;
     private Object targets;
     private Integer latencyMs;
     private String traceId;
+    private String llmProvider;
+    private String llmModel;
+    private Integer llmFrameCount;
+    private String llmDecisionSource;
+    private String frameSummary;
 
     public String getStatus() {
       return status;
@@ -296,6 +329,54 @@ public class DetectionJobService {
 
     public void setConfidence(Double confidence) {
       this.confidence = confidence;
+    }
+
+    public Double getTargetConfidence() {
+      return targetConfidence;
+    }
+
+    public void setTargetConfidence(Double targetConfidence) {
+      this.targetConfidence = targetConfidence;
+    }
+
+    public Double getActionConfidence() {
+      return actionConfidence;
+    }
+
+    public void setActionConfidence(Double actionConfidence) {
+      this.actionConfidence = actionConfidence;
+    }
+
+    public Double getFinalConfidence() {
+      return finalConfidence;
+    }
+
+    public void setFinalConfidence(Double finalConfidence) {
+      this.finalConfidence = finalConfidence;
+    }
+
+    public String getReasonCode() {
+      return reasonCode;
+    }
+
+    public void setReasonCode(String reasonCode) {
+      this.reasonCode = reasonCode;
+    }
+
+    public String getReasonText() {
+      return reasonText;
+    }
+
+    public void setReasonText(String reasonText) {
+      this.reasonText = reasonText;
+    }
+
+    public String getRiskTag() {
+      return riskTag;
+    }
+
+    public void setRiskTag(String riskTag) {
+      this.riskTag = riskTag;
     }
 
     public Boolean getActionDetected() {
@@ -328,6 +409,46 @@ public class DetectionJobService {
 
     public void setTraceId(String traceId) {
       this.traceId = traceId;
+    }
+
+    public String getLlmProvider() {
+      return llmProvider;
+    }
+
+    public void setLlmProvider(String llmProvider) {
+      this.llmProvider = llmProvider;
+    }
+
+    public String getLlmModel() {
+      return llmModel;
+    }
+
+    public void setLlmModel(String llmModel) {
+      this.llmModel = llmModel;
+    }
+
+    public Integer getLlmFrameCount() {
+      return llmFrameCount;
+    }
+
+    public void setLlmFrameCount(Integer llmFrameCount) {
+      this.llmFrameCount = llmFrameCount;
+    }
+
+    public String getLlmDecisionSource() {
+      return llmDecisionSource;
+    }
+
+    public void setLlmDecisionSource(String llmDecisionSource) {
+      this.llmDecisionSource = llmDecisionSource;
+    }
+
+    public String getFrameSummary() {
+      return frameSummary;
+    }
+
+    public void setFrameSummary(String frameSummary) {
+      this.frameSummary = frameSummary;
     }
 
     public String getTargetsJson(ObjectMapper objectMapper) {

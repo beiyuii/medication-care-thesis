@@ -95,7 +95,7 @@ const handleSubmit = async () => {
           role: res.role as 'elder' | 'caregiver' | 'child',
         },
       })
-      message.success('注册成功！')
+      message.success(isRegisterMode.value && formModel.role !== 'elder' ? '注册成功，请先完成绑定' : '注册成功！')
     } else {
       // 登录模式
       const res = await login({
@@ -121,7 +121,11 @@ const handleSubmit = async () => {
     }
     // 确保 role 存在，否则使用默认首页
     const targetRole = authStore.role ?? 'elder'
-    await router.push(roleHomeMap[targetRole] ?? '/elder/home')
+    const targetPath =
+      isRegisterMode.value && targetRole !== 'elder'
+        ? '/settings'
+        : (roleHomeMap[targetRole] ?? '/elder/home')
+    await router.push(targetPath)
   } catch (error: unknown) {
     // 提取错误消息
     const errorMsg = extractErrorMessage(error, '操作失败，请重试')

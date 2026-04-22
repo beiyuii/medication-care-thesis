@@ -36,13 +36,17 @@ public class ReportServiceImpl implements ReportService {
     List<ReminderInstance> instances = reminderInstanceMapper.selectList(wrapper);
     int totalReminders = instances.size();
     int confirmedCount = (int) instances.stream()
-        .filter(instance -> "confirmed".equalsIgnoreCase(instance.getStatus()))
+        .filter(instance -> "caregiver_confirmed".equalsIgnoreCase(instance.getStatus()))
         .count();
     int missedCount = (int) instances.stream()
         .filter(instance -> "missed".equalsIgnoreCase(instance.getStatus()))
         .count();
     int abnormalCount = (int) instances.stream()
-        .filter(instance -> "abnormal".equalsIgnoreCase(instance.getStatus()))
+        .filter(instance -> "abnormal_pending_review".equalsIgnoreCase(instance.getStatus())
+            || "evidence_required".equalsIgnoreCase(instance.getStatus())
+            || "caregiver_rejected".equalsIgnoreCase(instance.getStatus())
+            || "review_timeout".equalsIgnoreCase(instance.getStatus())
+            || "manual_intervention".equalsIgnoreCase(instance.getStatus()))
         .count();
     long avgResponseTime = calculateAvgResponseTime(instances);
 

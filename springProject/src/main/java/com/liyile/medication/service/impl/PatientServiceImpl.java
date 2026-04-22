@@ -4,16 +4,21 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.liyile.medication.entity.Alert;
 import com.liyile.medication.entity.Patient;
 import com.liyile.medication.entity.Schedule;
+import com.liyile.medication.entity.User;
+import com.liyile.medication.entity.UserPatientRelation;
 import com.liyile.medication.mapper.AlertMapper;
 import com.liyile.medication.mapper.PatientMapper;
 import com.liyile.medication.mapper.ScheduleMapper;
 import com.liyile.medication.mapper.UserPatientRelationMapper;
 import com.liyile.medication.service.PatientService;
 import com.liyile.medication.service.ReminderInstanceService;
+import com.liyile.medication.service.UserService;
 import com.liyile.medication.vo.ReminderInstanceVO;
 import com.liyile.medication.vo.PatientSummaryVO;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +39,8 @@ public class PatientServiceImpl implements PatientService {
   private final AlertMapper alertMapper;
   /** 提醒实例服务 */
   private final ReminderInstanceService reminderInstanceService;
+  /** 用户服务 */
+  private final UserService userService;
 
   /** 构造方法注入依赖。 */
   public PatientServiceImpl(
@@ -41,12 +48,14 @@ public class PatientServiceImpl implements PatientService {
       UserPatientRelationMapper userPatientRelationMapper,
       ScheduleMapper scheduleMapper,
       AlertMapper alertMapper,
-      ReminderInstanceService reminderInstanceService) {
+      ReminderInstanceService reminderInstanceService,
+      UserService userService) {
     this.patientMapper = patientMapper;
     this.userPatientRelationMapper = userPatientRelationMapper;
     this.scheduleMapper = scheduleMapper;
     this.alertMapper = alertMapper;
     this.reminderInstanceService = reminderInstanceService;
+    this.userService = userService;
   }
 
   @Override
@@ -57,6 +66,12 @@ public class PatientServiceImpl implements PatientService {
       // elder角色：查询自己的患者记录
       patients = patientMapper.selectList(
           new LambdaQueryWrapper<Patient>().eq(Patient::getElderUserId, userId));
+      if (patients.isEmpty()) {
+        User elderUser = userService.findById(userId);
+        if (elderUser != null) {
+          patients = List.of(ensurePatientProfileForElder(elderUser));
+        }
+      }
     } else if ("caregiver".equals(role)) {
       // caregiver角色：查询关联的所有患者（一对多关系）
       List<Long> patientIds = userPatientRelationMapper.selectList(
@@ -176,5 +191,85 @@ public class PatientServiceImpl implements PatientService {
   @Override
   public Patient findById(Long id) {
     return patientMapper.selectById(id);
+  }
+
+  @Override
+  public Patient ensurePatientProfileForElder(User user) {
+    if (user == null || !"elder".equalsIgnoreCase(user.getRole())) {
+      throw new IllegalArgumentException("只有老年人账号可以创建患者档案");
+    }
+
+    Patient existing = patientMapper.selectOne(
+        new LambdaQueryWrapper<Patient>().eq(Patient::getElderUserId, user.getId()).last("LIMIT 1"));
+    if (existing != null) {
+      return existing;
+    }
+
+    Patient patient = new Patient();
+    patient.setElderUserId(user.getId());
+    patient.setName(user.getUsername());
+    patientMapper.insert(patient);
+    return patient;
+  }
+
+  @Override
+  public PatientSummaryVO bindPatientByElderUsername(User currentUser, String currentRole, String elderUsername) {
+    if (currentUser == null) {
+      throw new IllegalArgumentException("当前用户不存在");
+    }
+    String normalizedRole = currentRole == null ? "" : currentRole.toLowerCase(Locale.ROOT);
+    if (!"caregiver".equals(normalizedRole) && !"child".equals(normalizedRole)) {
+      throw new IllegalArgumentException("只有护工或子女账号可以绑定患者");
+    }
+
+    User elderUser = userService.findByUsername(elderUsername);
+    if (elderUser == null || !"elder".equalsIgnoreCase(elderUser.getRole())) {
+      throw new IllegalArgumentException("未找到对应的老人账号");
+    }
+
+    Patient patient = ensurePatientProfileForElder(elderUser);
+
+    if ("child".equals(normalizedRole)) {
+      long childBindingCount = userPatientRelationMapper.selectCount(
+          new LambdaQueryWrapper<UserPatientRelation>()
+              .eq(UserPatientRelation::getUserId, currentUser.getId())
+              .eq(UserPatientRelation::getRelationType, "child"));
+      if (childBindingCount > 0) {
+        UserPatientRelation existingChildRelation = userPatientRelationMapper.selectOne(
+            new LambdaQueryWrapper<UserPatientRelation>()
+                .eq(UserPatientRelation::getUserId, currentUser.getId())
+                .eq(UserPatientRelation::getRelationType, "child")
+                .last("LIMIT 1"));
+        if (existingChildRelation != null && !Objects.equals(existingChildRelation.getPatientId(), patient.getId())) {
+          throw new IllegalArgumentException("子女账号当前只支持绑定一位老人，请先使用当前绑定关系");
+        }
+      }
+    }
+
+    UserPatientRelation existingRelation = userPatientRelationMapper.selectOne(
+        new LambdaQueryWrapper<UserPatientRelation>()
+            .eq(UserPatientRelation::getUserId, currentUser.getId())
+            .eq(UserPatientRelation::getPatientId, patient.getId())
+            .eq(UserPatientRelation::getRelationType, normalizedRole)
+            .last("LIMIT 1"));
+    if (existingRelation == null) {
+      UserPatientRelation relation = new UserPatientRelation();
+      relation.setUserId(currentUser.getId());
+      relation.setPatientId(patient.getId());
+      relation.setRelationType(normalizedRole);
+      userPatientRelationMapper.insert(relation);
+    }
+
+    return findPatientsByUserId(currentUser.getId(), normalizedRole).stream()
+        .filter(item -> Objects.equals(item.getId(), patient.getId()))
+        .findFirst()
+        .orElseGet(() -> {
+          PatientSummaryVO summary = new PatientSummaryVO();
+          summary.setId(patient.getId());
+          summary.setName(patient.getName());
+          summary.setPlanStatus("paused");
+          summary.setAlertCount(0);
+          return summary;
+        });
   }
 }

@@ -42,11 +42,13 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: '首页', path: '/caregiver/home', icon: HomeOutline },
     { label: '历史与统计', path: '/history', icon: StatsChartOutline },
     { label: '异常与告警', path: '/alerts', icon: AlertCircleOutline },
+    { label: '设置', path: '/settings', icon: SettingsOutline },
   ],
   child: [
     { label: '首页', path: '/child/home', icon: HomeOutline },
     { label: '历史与统计', path: '/history', icon: StatsChartOutline },
     { label: '异常与告警', path: '/alerts', icon: AlertCircleOutline },
+    { label: '设置', path: '/settings', icon: SettingsOutline },
   ],
 }
 
@@ -175,7 +177,8 @@ const navSections = computed<NavSection[]>(() => {
   }
   return [
     { label: '工作台', items: items.slice(0, 1) },
-    { label: '记录中心', items: items.slice(1) },
+    { label: '记录中心', items: items.slice(1, 3) },
+    { label: '账户与权限', items: items.slice(3) },
   ]
 })
 

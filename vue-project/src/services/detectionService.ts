@@ -16,6 +16,18 @@ export interface DetectionPredictPayload {
 export interface DetectionPredictResult {
   status: 'suspected' | 'confirmed' | 'abnormal'
   confidence: number
+  targetConfidence: number
+  actionConfidence: number
+  finalConfidence: number
+  reasonCode:
+    | 'clear_intake'
+    | 'target_only'
+    | 'action_only'
+    | 'possible_fake_intake'
+    | 'insufficient_evidence'
+    | 'no_medication_detected'
+  reasonText: string
+  riskTag: 'possible_fake_intake' | 'insufficient_evidence' | 'clear_intake' | 'no_target'
   actionDetected: boolean
   targetDetected?: boolean // 是否检测到目标（从 targets 数组推导）
   targets: Array<{ label: string; score: number; bbox: [number, number, number, number] }>
@@ -88,6 +100,18 @@ export interface VideoMetadata {
 export interface VideoDetectionResult {
   status: 'suspected' | 'confirmed' | 'abnormal'
   confidence: number
+  targetConfidence: number
+  actionConfidence: number
+  finalConfidence: number
+  reasonCode:
+    | 'clear_intake'
+    | 'target_only'
+    | 'action_only'
+    | 'possible_fake_intake'
+    | 'insufficient_evidence'
+    | 'no_medication_detected'
+  reasonText: string
+  riskTag: 'possible_fake_intake' | 'insufficient_evidence' | 'clear_intake' | 'no_target'
   actionDetected: boolean
   targets: VideoDetectionTarget[]
   actionTimeline: ActionTimeline[]

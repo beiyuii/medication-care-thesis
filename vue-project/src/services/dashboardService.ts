@@ -25,9 +25,41 @@ export interface ReminderInstanceItem {
   scheduledDate: string
   windowStartAt: string
   windowEndAt: string
-  status: 'pending' | 'detecting' | 'suspected' | 'confirmed' | 'missed' | 'abnormal' | 'resolved'
+  status:
+    | 'not_submitted'
+    | 'waiting_caregiver'
+    | 'abnormal_pending_review'
+    | 'evidence_required'
+    | 'caregiver_confirmed'
+    | 'caregiver_rejected'
+    | 'review_timeout'
+    | 'missed'
+    | 'waiting_caregiver_late'
+    | 'manual_intervention'
+  reviewStatus: ReminderInstanceItem['status']
+  detectionStatus: 'none' | 'suspected' | 'confirmed' | 'abnormal'
+  parentInstanceId?: number | null
+  retryCount: number
+  reviewDeadline?: string | null
+  lateMinutes?: number | null
+  reviewedBy?: string | null
+  reviewedAt?: string | null
+  reviewReason?: string | null
   confirmedAt?: string | null
   detectionJobId?: number | null
+  targetConfidence?: number | null
+  actionConfidence?: number | null
+  finalConfidence?: number | null
+  detectionReasonCode?:
+    | 'clear_intake'
+    | 'target_only'
+    | 'action_only'
+    | 'possible_fake_intake'
+    | 'insufficient_evidence'
+    | 'no_medication_detected'
+    | null
+  detectionReasonText?: string | null
+  detectionRiskTag?: 'possible_fake_intake' | 'insufficient_evidence' | 'clear_intake' | 'no_target' | null
   lastEventId?: number | null
   medicineName: string
   dose: string
@@ -46,6 +78,7 @@ export interface CaregiverDashboardData {
   patients: PatientSummary[]
   activePatient: PatientSummary | null
   recentEvents: HistoryEvent[]
+  pendingReviewInstances: ReminderInstanceItem[]
   activeAlerts: DashboardAlert[]
   completionRate: number
 }
@@ -58,6 +91,16 @@ interface ApiDashboardEvent {
   medicineName?: string
   ts: string
   status: 'suspected' | 'confirmed' | 'abnormal'
+  eventType?:
+    | 'plan_scheduled'
+    | 'intake_submitted'
+    | 'detection_completed'
+    | 'review_decided'
+    | 'instance_timeout'
+    | 'retry_created'
+  detectionStatus?: 'none' | 'suspected' | 'confirmed' | 'abnormal'
+  reviewDecision?: 'confirmed' | 'rejected' | 'needs_evidence' | null
+  reviewReason?: string | null
   action?: string
   targetsJson?: string
   imgUrl?: string
@@ -69,6 +112,7 @@ interface ApiCaregiverDashboardData {
   patients: PatientSummary[]
   activePatient: PatientSummary | null
   recentEvents: ApiDashboardEvent[]
+  pendingReviewInstances: ReminderInstanceItem[]
   activeAlerts: DashboardAlert[]
   completionRate?: number
 }
@@ -104,10 +148,14 @@ function mapDashboardEvent(event: ApiDashboardEvent): HistoryEvent {
   const planName = event.scheduleName ?? event.medicineName ?? `计划 #${event.scheduleId}`
   return {
     id: String(event.id),
+    eventType: event.eventType ?? 'detection_completed',
     timestamp: formatTimestamp(event.ts),
     medicineName,
     planName,
     status: event.status,
+    detectionStatus: event.detectionStatus ?? event.status,
+    reviewDecision: event.reviewDecision ?? null,
+    reviewReason: event.reviewReason ?? null,
     action: event.confirmedBy ?? event.action ?? '等待确认',
     imageUrl: resolveImageUrl(event.imgUrl),
     scheduleId: event.scheduleId,
@@ -130,6 +178,7 @@ export async function fetchCaregiverDashboard(patientId?: number): Promise<Careg
   return {
     ...data,
     recentEvents: data.recentEvents.map(mapDashboardEvent),
+    pendingReviewInstances: data.pendingReviewInstances ?? [],
     completionRate: data.completionRate ?? 0,
   }
 }

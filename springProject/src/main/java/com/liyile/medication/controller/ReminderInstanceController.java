@@ -3,6 +3,9 @@ package com.liyile.medication.controller;
 import com.liyile.medication.common.ApiResponse;
 import com.liyile.medication.common.ErrorCode;
 import com.liyile.medication.dto.ConfirmReminderInstanceDTO;
+import com.liyile.medication.dto.RequestEvidenceDTO;
+import com.liyile.medication.dto.ReviewReminderInstanceDTO;
+import com.liyile.medication.dto.SubmitReminderInstanceDTO;
 import com.liyile.medication.entity.ReminderInstance;
 import com.liyile.medication.service.ReminderInstanceService;
 import com.liyile.medication.service.UserAccessService;
@@ -24,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "提醒实例管理", description = "每日提醒实例查询与确认接口")
+@Tag(name = "提醒实例管理", description = "每日提醒实例查询、提交与护工审核接口")
 @RestController
 @RequestMapping("/api/reminder-instances")
 public class ReminderInstanceController {
@@ -49,31 +52,94 @@ public class ReminderInstanceController {
     return ApiResponse.success(reminderInstanceService.listInstanceVOs(patientId, targetDate, status));
   }
 
-  @Operation(summary = "人工确认提醒实例", description = "将提醒实例直接确认并同步事件与告警状态")
-  @PreAuthorize("hasAnyRole('ELDER', 'CAREGIVER', 'CHILD')")
-  @PostMapping("/{id}/confirm")
-  public ApiResponse<ReminderInstanceVO> confirm(
+  @Operation(summary = "老人提交服药记录", description = "老人完成服药后提交本次记录，进入待护工审核")
+  @PreAuthorize("hasRole('ELDER')")
+  @PostMapping("/{id}/submit")
+  public ApiResponse<ReminderInstanceVO> submit(
       @RequestHeader("Authorization") String authorization,
       @PathVariable("id") Long id,
-      @RequestBody(required = false) ConfirmReminderInstanceDTO dto) {
+      @RequestBody(required = false) SubmitReminderInstanceDTO dto) {
     ReminderInstance instance = reminderInstanceService.getById(id);
     if (instance == null) {
       return ApiResponse.failure(ErrorCode.NOT_FOUND, "提醒实例不存在");
     }
     userAccessService.assertCanAccessPatient(authorization, instance.getPatientId());
-    String confirmedBy = dto != null && dto.getConfirmedBy() != null
-        ? dto.getConfirmedBy()
+    String submittedBy = dto != null && dto.getSubmittedBy() != null
+        ? dto.getSubmittedBy()
         : userAccessService.resolve(authorization).user().getUsername();
-    Timestamp confirmTime = Timestamp.from(Instant.now());
-    if (dto != null && dto.getConfirmTime() != null && !dto.getConfirmTime().isBlank()) {
-      try {
-        confirmTime = Timestamp.from(Instant.parse(dto.getConfirmTime()));
-      } catch (Exception ignored) {
-        // keep now
-      }
+    Timestamp submitTime = parseTimestamp(dto != null ? dto.getSubmitTime() : null);
+    ReminderInstance submitted = reminderInstanceService.submitInstance(instance, submittedBy, submitTime);
+    return ApiResponse.success(reminderInstanceService.toVOs(List.of(submitted)).get(0));
+  }
+
+  @Operation(summary = "护工审核提醒实例", description = "护工确认、驳回或要求补充证据")
+  @PreAuthorize("hasRole('CAREGIVER')")
+  @PostMapping("/{id}/review")
+  public ApiResponse<ReminderInstanceVO> review(
+      @RequestHeader("Authorization") String authorization,
+      @PathVariable("id") Long id,
+      @RequestBody ReviewReminderInstanceDTO dto) {
+    ReminderInstance instance = reminderInstanceService.getById(id);
+    if (instance == null) {
+      return ApiResponse.failure(ErrorCode.NOT_FOUND, "提醒实例不存在");
     }
-    ReminderInstance confirmed =
-        reminderInstanceService.confirmInstance(instance, confirmedBy, confirmTime, instance.getLastDetectionJobId());
-    return ApiResponse.success(reminderInstanceService.toVOs(List.of(confirmed)).get(0));
+    userAccessService.assertCanAccessPatient(authorization, instance.getPatientId());
+    String reviewedBy = dto != null && dto.getReviewedBy() != null
+        ? dto.getReviewedBy()
+        : userAccessService.resolve(authorization).user().getUsername();
+    Timestamp reviewTime = parseTimestamp(dto != null ? dto.getReviewTime() : null);
+    ReminderInstance reviewed = reminderInstanceService.reviewInstance(
+        instance,
+        dto != null ? dto.getDecision() : null,
+        reviewedBy,
+        reviewTime,
+        dto != null ? dto.getReason() : null);
+    return ApiResponse.success(reminderInstanceService.toVOs(List.of(reviewed)).get(0));
+  }
+
+  @Operation(summary = "护工要求补充证据", description = "检测异常时要求补充证据或线下核实")
+  @PreAuthorize("hasRole('CAREGIVER')")
+  @PostMapping("/{id}/request-evidence")
+  public ApiResponse<ReminderInstanceVO> requestEvidence(
+      @RequestHeader("Authorization") String authorization,
+      @PathVariable("id") Long id,
+      @RequestBody(required = false) RequestEvidenceDTO dto) {
+    ReminderInstance instance = reminderInstanceService.getById(id);
+    if (instance == null) {
+      return ApiResponse.failure(ErrorCode.NOT_FOUND, "提醒实例不存在");
+    }
+    userAccessService.assertCanAccessPatient(authorization, instance.getPatientId());
+    String requestedBy = dto != null && dto.getRequestedBy() != null
+        ? dto.getRequestedBy()
+        : userAccessService.resolve(authorization).user().getUsername();
+    Timestamp requestTime = parseTimestamp(dto != null ? dto.getRequestTime() : null);
+    ReminderInstance updated =
+        reminderInstanceService.requestEvidence(instance, requestedBy, requestTime, dto != null ? dto.getNote() : null);
+    return ApiResponse.success(reminderInstanceService.toVOs(List.of(updated)).get(0));
+  }
+
+  @Operation(summary = "兼容旧确认接口", description = "兼容旧版前端，将确认操作映射到护工审核通过")
+  @PreAuthorize("hasRole('CAREGIVER')")
+  @PostMapping("/{id}/confirm")
+  public ApiResponse<ReminderInstanceVO> confirm(
+      @RequestHeader("Authorization") String authorization,
+      @PathVariable("id") Long id,
+      @RequestBody(required = false) ConfirmReminderInstanceDTO dto) {
+    ReviewReminderInstanceDTO reviewDto = new ReviewReminderInstanceDTO();
+    reviewDto.setDecision(ReminderInstanceService.DECISION_CONFIRMED);
+    reviewDto.setReviewedBy(dto != null ? dto.getConfirmedBy() : null);
+    reviewDto.setReviewTime(dto != null ? dto.getConfirmTime() : null);
+    return review(authorization, id, reviewDto);
+  }
+
+  private Timestamp parseTimestamp(String isoValue) {
+    if (isoValue == null || isoValue.isBlank()) {
+      return Timestamp.from(Instant.now());
+    }
+    try {
+      return Timestamp.from(Instant.parse(isoValue));
+    } catch (Exception ignored) {
+      return Timestamp.from(Instant.now());
+    }
   }
 }

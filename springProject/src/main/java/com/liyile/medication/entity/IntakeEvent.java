@@ -29,6 +29,18 @@ public class IntakeEvent {
   /** 事件状态（suspected/confirmed/abnormal） */
   private String status;
 
+  /** 事件类型（plan_scheduled/intake_submitted/detection_completed/review_decided/instance_timeout/retry_created） */
+  private String eventType;
+
+  /** 检测状态（none/suspected/confirmed/abnormal） */
+  private String detectionStatus;
+
+  /** 审核结论（confirmed/rejected/needs_evidence） */
+  private String reviewDecision;
+
+  /** 审核备注/原因。 */
+  private String reviewReason;
+
   /** 确认人 */
   private String confirmedBy;
 
@@ -109,6 +121,38 @@ public class IntakeEvent {
   /** 设置事件状态。 */
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public String getEventType() {
+    return eventType;
+  }
+
+  public void setEventType(String eventType) {
+    this.eventType = eventType;
+  }
+
+  public String getDetectionStatus() {
+    return detectionStatus;
+  }
+
+  public void setDetectionStatus(String detectionStatus) {
+    this.detectionStatus = detectionStatus;
+  }
+
+  public String getReviewDecision() {
+    return reviewDecision;
+  }
+
+  public void setReviewDecision(String reviewDecision) {
+    this.reviewDecision = reviewDecision;
+  }
+
+  public String getReviewReason() {
+    return reviewReason;
+  }
+
+  public void setReviewReason(String reviewReason) {
+    this.reviewReason = reviewReason;
   }
 
   /** 获取确认人。 */

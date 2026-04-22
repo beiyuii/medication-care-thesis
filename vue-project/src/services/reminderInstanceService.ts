@@ -1,9 +1,22 @@
 import http from '@/lib/http'
 import type { ReminderInstanceItem } from './dashboardService'
 
-interface ConfirmReminderPayload {
-  confirmedBy?: string
-  confirmTime?: string
+interface SubmitReminderPayload {
+  submittedBy?: string
+  submitTime?: string
+}
+
+export interface ReviewReminderPayload {
+  decision: 'confirmed' | 'rejected' | 'needs_evidence'
+  reviewedBy?: string
+  reviewTime?: string
+  reason?: string
+}
+
+interface RequestEvidencePayload {
+  requestedBy?: string
+  requestTime?: string
+  note?: string
 }
 
 export async function fetchReminderInstances(
@@ -20,9 +33,23 @@ export async function fetchReminderInstances(
   })
 }
 
-export async function confirmReminderInstance(
+export async function submitReminderInstance(
   reminderInstanceId: number,
-  payload?: ConfirmReminderPayload,
+  payload?: SubmitReminderPayload,
 ): Promise<ReminderInstanceItem> {
-  return http.post(`/reminder-instances/${reminderInstanceId}/confirm`, payload ?? {})
+  return http.post(`/reminder-instances/${reminderInstanceId}/submit`, payload ?? {})
+}
+
+export async function reviewReminderInstance(
+  reminderInstanceId: number,
+  payload: ReviewReminderPayload,
+): Promise<ReminderInstanceItem> {
+  return http.post(`/reminder-instances/${reminderInstanceId}/review`, payload)
+}
+
+export async function requestReminderEvidence(
+  reminderInstanceId: number,
+  payload?: RequestEvidencePayload,
+): Promise<ReminderInstanceItem> {
+  return http.post(`/reminder-instances/${reminderInstanceId}/request-evidence`, payload ?? {})
 }

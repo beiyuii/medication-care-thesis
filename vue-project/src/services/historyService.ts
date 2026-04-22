@@ -12,10 +12,20 @@ interface ApiIntakeEvent {
   id: number
   patientId: number
   scheduleId: number
+  eventType?:
+    | 'plan_scheduled'
+    | 'intake_submitted'
+    | 'detection_completed'
+    | 'review_decided'
+    | 'instance_timeout'
+    | 'retry_created'
   scheduleName?: string
   medicineName?: string
   ts: string
   status: EventStatus
+  detectionStatus?: 'none' | 'suspected' | 'confirmed' | 'abnormal'
+  reviewDecision?: 'confirmed' | 'rejected' | 'needs_evidence' | null
+  reviewReason?: string | null
   action?: string
   targetsJson?: string
   imgUrl?: string
@@ -130,10 +140,14 @@ function mapApiEventToHistoryEvent(event: ApiIntakeEvent): HistoryEvent {
 
   return {
     id: String(event.id),
+    eventType: event.eventType ?? 'detection_completed',
     timestamp: formatTimestamp(event.ts),
     medicineName,
     planName,
     status: event.status,
+    detectionStatus: event.detectionStatus ?? event.status,
+    reviewDecision: event.reviewDecision ?? null,
+    reviewReason: event.reviewReason ?? null,
     action: confirmedMessage ?? event.action ?? '等待确认',
     imageUrl: resolveImageUrl(event.imgUrl),
     videoUrl: resolveImageUrl(event.videoUrl),

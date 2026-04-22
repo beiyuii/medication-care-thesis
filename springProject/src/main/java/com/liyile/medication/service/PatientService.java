@@ -1,6 +1,7 @@
 package com.liyile.medication.service;
 
 import com.liyile.medication.entity.Patient;
+import com.liyile.medication.entity.User;
 import com.liyile.medication.vo.PatientSummaryVO;
 import java.util.List;
 
@@ -38,5 +39,22 @@ public interface PatientService {
    * @return 患者实体或null
    */
   Patient findById(Long id);
-}
 
+  /**
+   * 为 elder 账号确保存在一条患者档案。
+   *
+   * @param user 当前用户
+   * @return 患者实体
+   */
+  Patient ensurePatientProfileForElder(User user);
+
+  /**
+   * 按老人用户名绑定当前 caregiver / child 到患者。
+   *
+   * @param currentUser 当前用户
+   * @param currentRole 当前角色
+   * @param elderUsername 老人账号用户名
+   * @return 绑定后的患者摘要
+   */
+  PatientSummaryVO bindPatientByElderUsername(User currentUser, String currentRole, String elderUsername);
+}

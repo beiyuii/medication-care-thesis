@@ -46,6 +46,14 @@ class Settings(BaseSettings):
 
     readiness_wait_secs: float = 5.0
 
+    # DeepSeek / OpenAI-compatible VLM 复核配置
+    deepseek_base_url: str | None = None
+    deepseek_api_key: str | None = None
+    deepseek_model: str | None = None
+    deepseek_timeout_ms: int = 30000
+    deepseek_frame_count: int = 6
+    deepseek_enabled: bool = True
+
 
 @cache
 def get_settings() -> Settings:

@@ -23,12 +23,23 @@ public class DetectionJob {
   private String status;
   private String resultStatus;
   private Double confidence;
+  private Double targetConfidence;
+  private Double actionConfidence;
+  private Double finalConfidence;
+  private String reasonCode;
+  private String reasonText;
+  private String riskTag;
   private Boolean actionDetected;
   private String targetsJson;
   private Integer latencyMs;
   private String errorCode;
   private String errorMessage;
   private String traceId;
+  private String llmProvider;
+  private String llmModel;
+  private Integer llmFrameCount;
+  private String llmDecisionSource;
+  private String frameSummary;
   private Timestamp startedAt;
   private Timestamp completedAt;
   private Timestamp createdAt;
@@ -106,6 +117,54 @@ public class DetectionJob {
     this.confidence = confidence;
   }
 
+  public Double getTargetConfidence() {
+    return targetConfidence;
+  }
+
+  public void setTargetConfidence(Double targetConfidence) {
+    this.targetConfidence = targetConfidence;
+  }
+
+  public Double getActionConfidence() {
+    return actionConfidence;
+  }
+
+  public void setActionConfidence(Double actionConfidence) {
+    this.actionConfidence = actionConfidence;
+  }
+
+  public Double getFinalConfidence() {
+    return finalConfidence;
+  }
+
+  public void setFinalConfidence(Double finalConfidence) {
+    this.finalConfidence = finalConfidence;
+  }
+
+  public String getReasonCode() {
+    return reasonCode;
+  }
+
+  public void setReasonCode(String reasonCode) {
+    this.reasonCode = reasonCode;
+  }
+
+  public String getReasonText() {
+    return reasonText;
+  }
+
+  public void setReasonText(String reasonText) {
+    this.reasonText = reasonText;
+  }
+
+  public String getRiskTag() {
+    return riskTag;
+  }
+
+  public void setRiskTag(String riskTag) {
+    this.riskTag = riskTag;
+  }
+
   public Boolean getActionDetected() {
     return actionDetected;
   }
@@ -152,6 +211,46 @@ public class DetectionJob {
 
   public void setTraceId(String traceId) {
     this.traceId = traceId;
+  }
+
+  public String getLlmProvider() {
+    return llmProvider;
+  }
+
+  public void setLlmProvider(String llmProvider) {
+    this.llmProvider = llmProvider;
+  }
+
+  public String getLlmModel() {
+    return llmModel;
+  }
+
+  public void setLlmModel(String llmModel) {
+    this.llmModel = llmModel;
+  }
+
+  public Integer getLlmFrameCount() {
+    return llmFrameCount;
+  }
+
+  public void setLlmFrameCount(Integer llmFrameCount) {
+    this.llmFrameCount = llmFrameCount;
+  }
+
+  public String getLlmDecisionSource() {
+    return llmDecisionSource;
+  }
+
+  public void setLlmDecisionSource(String llmDecisionSource) {
+    this.llmDecisionSource = llmDecisionSource;
+  }
+
+  public String getFrameSummary() {
+    return frameSummary;
+  }
+
+  public void setFrameSummary(String frameSummary) {
+    this.frameSummary = frameSummary;
   }
 
   public Timestamp getStartedAt() {

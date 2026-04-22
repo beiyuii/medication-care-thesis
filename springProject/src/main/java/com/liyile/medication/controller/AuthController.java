@@ -81,7 +81,7 @@ public class AuthController {
   @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "注册成功，返回token和角色")
   @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "参数校验失败或用户名已存在")
   @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public ApiResponse<Map<String, String>> register(
+  public ApiResponse<Map<String, Object>> register(
       @Parameter(description = "注册请求参数，包含username（用户名）、password（密码）、role（角色：elder/caregiver/child）")
       @Valid @RequestBody RegisterRequest request) {
     logger.info("收到注册请求: username={}, role={}", request.getUsername(), request.getRole());
@@ -98,12 +98,19 @@ public class AuthController {
     String normalizedRole = request.getRole().toLowerCase(Locale.ROOT);
     user.setRole(normalizedRole);
     userService.save(user);
+    if ("elder".equals(normalizedRole)) {
+      patientService.ensurePatientProfileForElder(user);
+    }
     
     String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole());
     logger.info("注册成功: username={}, role={}, userId={}, token={}", 
         user.getUsername(), user.getRole(), user.getId(), token);
     
-    Map<String, String> result = Map.of("token", token, "role", user.getRole());
+    Map<String, Object> result = new HashMap<>();
+    result.put("token", token);
+    result.put("role", user.getRole());
+    result.put("userId", user.getId());
+    result.put("displayName", user.getUsername());
     return ApiResponse.success(result);
   }
 
